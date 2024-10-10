@@ -4,6 +4,8 @@
 #include <vector>
 #include "Mesh.h"
 #include <cmath>
+#include "math.h"
+#include "Eq.h"
 
 struct RaySphereIntersection{
     bool intersectionExists;
@@ -85,6 +87,30 @@ public:
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
         //TODO calcul l'intersection rayon sphere
+        Vec3 o = ray.origin();
+        Vec3 d = ray.direction();
+        float t, t1;
+        float r = m_radius;
+        float delta, a, b, c;
+        a = Vec3::dot(d,d);
+        b = 2.*Vec3::dot(d, (o-m_center));
+        c = (o-m_center).squareLength() - pow(r,2.);
+        delta = pow(b,2) - 4*a*c;
+        if (delta < 0) {
+            intersection.intersectionExists = false;
+            t = -1.;
+        } else 
+        if (delta > 0) {
+            intersection.intersectionExists = true;
+            t = (-b+sqrt(delta))/(2*a);
+            t1 = (-b-sqrt(delta))/(2*a);
+            if (t1 < t) t = t1;
+        } else
+        if (delta == 0) {
+            intersection.intersectionExists = true;
+            t = -2/(2*a);
+        }
+        intersection.t = t;
         return intersection;
     }
 };

@@ -69,6 +69,7 @@ void printUsage () {
          << " w: Toggle Wireframe Mode" << endl
          << " g: Toggle Gouraud Shading Mode" << endl
          << " f: Toggle full screen mode" << endl
+         << " +: Change scene" << endl
          << " <drag>+<left button>: rotate model" << endl
          << " <drag>+<right button>: move model" << endl
          << " <drag>+<middle button>: zoom" << endl
