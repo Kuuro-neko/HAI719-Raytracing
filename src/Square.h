@@ -62,9 +62,29 @@ public:
 
     RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
-
         //TODO calculer l'intersection rayon quad
+        float D = Vec3::dot(m_bottom_left, m_normal);
+        float t = (D - Vec3::dot(ray.origin(), m_normal))/(Vec3::dot(ray.direction(), m_normal));
+        if (t > 0) {
+            
 
+            Vec3 p = ray.origin() + t*ray.direction();
+
+            // proj sur bottom left to right
+            float r = Vec3::dot(p-m_bottom_left, m_bottom_left-m_right_vector);
+
+            // proj sur bottom left to up
+            float u = Vec3::dot(p-m_bottom_left, m_bottom_left-m_up_vector);
+
+            if (r <= 1. && u <= 1. && r >= 0. && u >= 0.) {
+                intersection.intersectionExists = true;
+                intersection.t = t;
+                return intersection;
+            }
+
+        }
+        intersection.intersectionExists = false;
+        intersection.t = -1;
         return intersection;
     }
 };

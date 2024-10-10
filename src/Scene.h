@@ -39,9 +39,9 @@ struct RaySceneIntersection{
     unsigned int typeOfIntersectedObject;
     unsigned int objectIndex;
     float t;
-    RayTriangleIntersection rayMeshIntersection;
-    RaySphereIntersection raySphereIntersection;
-    RaySquareIntersection raySquareIntersection;
+    RayTriangleIntersection rayMeshIntersection; // 2
+    RaySphereIntersection raySphereIntersection; // 1
+    RaySquareIntersection raySquareIntersection; // 0
     RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
@@ -81,6 +81,31 @@ public:
     RaySceneIntersection computeIntersection(Ray const & ray) {
         RaySceneIntersection result;
         //TODO calculer les intersections avec les objets de la scene et garder la plus proche
+        result.typeOfIntersectedObject = 0;
+        result.objectIndex = -1;
+        result.t = FLT_MAX;
+        for (int i = 0; i < spheres.size(); i++) {
+            RaySphereIntersection intersection = spheres[i].intersect(ray);
+            if (intersection.intersectionExists) {
+                if (intersection.t < result.t) {
+                    result.typeOfIntersectedObject = 1;
+                    result.raySphereIntersection = intersection;
+                    result.t = intersection.t;
+                    result.objectIndex = i;
+                }
+            } 
+        }
+        for (int i = 0; i < squares.size(); i++) {
+            RaySquareIntersection intersection = squares[i].intersect(ray);
+            if (intersection.intersectionExists) {
+                if (intersection.t < result.t) {
+                    result.typeOfIntersectedObject = 2;
+                    result.raySquareIntersection = intersection;
+                    result.t = intersection.t;
+                    result.objectIndex = i;
+                }
+            } 
+        }
         return result;
     }
 
@@ -89,20 +114,20 @@ public:
 
 
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
-        //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
+        RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color;
-        int imin = -1; float tmin = FLT_MAX;
-        for (int i = 0; i < spheres.size(); i++) {
-            RaySphereIntersection intersection = spheres[i].intersect(ray);
-            if (intersection.intersectionExists) {
-                if (intersection.t < tmin) {
-                    imin = i;
-                    tmin = intersection.t;
-                }
-            } 
+        switch (raySceneIntersection.typeOfIntersectedObject) {
+            case 1:
+                color = spheres[raySceneIntersection.objectIndex].material.diffuse_material;
+                break;
+            case 2:
+                color = squares[raySceneIntersection.objectIndex].material.diffuse_material;
+                break;
+            case 0:
+            default:
+                color = Vec3(1.,1.,1.);
         }
-
-        return (imin == -1) ? Vec3(0.,0.,0.) : spheres[imin].material.diffuse_material;
+        return color;
     }
 
 
@@ -174,7 +199,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.8,0.8,0.8 );
+            s.material.diffuse_material = Vec3( 1.,0.,0. );
             s.material.specular_material = Vec3( 0.8,0.8,0.8 );
             s.material.shininess = 20;
         }
