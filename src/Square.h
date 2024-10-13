@@ -62,29 +62,45 @@ public:
 
     RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
+
+        Vec3 m_bottom_left = vertices[0].position;
+        Vec3 m_right_vector = vertices[1].position - vertices[0].position;
+        Vec3 m_up_vector = vertices[3].position - vertices[0].position;
+        Vec3 m_normal = Vec3::cross(m_right_vector, m_up_vector);
+        m_normal.normalize();
+
         //TODO calculer l'intersection rayon quad
+        
         float D = Vec3::dot(m_bottom_left, m_normal);
         float t = (D - Vec3::dot(ray.origin(), m_normal))/(Vec3::dot(ray.direction(), m_normal));
-        if (t > 0) {
-            
 
+        if (t >= 0) {
+        
             Vec3 p = ray.origin() + t*ray.direction();
+            Vec3 q = p - m_bottom_left;
 
             // proj sur bottom left to right
-            float r = Vec3::dot(p-m_bottom_left, m_bottom_left-m_right_vector);
+            float proj1 = Vec3::dot(q, m_right_vector) / m_right_vector.length();
+
 
             // proj sur bottom left to up
-            float u = Vec3::dot(p-m_bottom_left, m_bottom_left-m_up_vector);
+            float proj2 = Vec3::dot(q, m_up_vector) / m_up_vector.length();
 
-            if (r <= 1. && u <= 1. && r >= 0. && u >= 0.) {
+            if ((proj1 <= m_right_vector.length() && proj1 >= 0) && (proj2 <= m_up_vector.length() && proj2 >= 0)) {
                 intersection.intersectionExists = true;
                 intersection.t = t;
+                intersection.u = proj1 / m_right_vector.length();
+                intersection.v = proj2 / m_up_vector.length();
+                intersection.intersection = p;
+                intersection.normal = m_normal;
                 return intersection;
             }
 
         }
         intersection.intersectionExists = false;
         intersection.t = -1;
+        
+
         return intersection;
     }
 };

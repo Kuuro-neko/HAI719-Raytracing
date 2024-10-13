@@ -98,7 +98,8 @@ public:
         delta = pow(b,2) - 4*a*c;
         if (delta < 0) {
             intersection.intersectionExists = false;
-            t = -1.;
+            intersection.t = -1.;
+            return intersection;
         } else 
         if (delta > 0) {
             intersection.intersectionExists = true;
@@ -111,6 +112,7 @@ public:
             t = -2/(2*a);
         }
         intersection.t = t;
+        intersection.intersection = o + t*d;
         return intersection;
     }
 };
