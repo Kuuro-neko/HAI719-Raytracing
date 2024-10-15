@@ -70,9 +70,23 @@ public:
         m_normal.normalize();
 
         //TODO calculer l'intersection rayon quad
+
+        // Rayon parallèle
+        if (Vec3::dot(ray.direction(), m_normal) == 0) {
+            intersection.intersectionExists = false;
+            intersection.t = FLT_MAX;
+            return intersection;
+        }
         
         float D = Vec3::dot(m_bottom_left, m_normal);
         float t = (D - Vec3::dot(ray.origin(), m_normal))/(Vec3::dot(ray.direction(), m_normal));
+
+        // Intersection derrière la caméra
+        if (t < 0) {
+            intersection.intersectionExists = false;
+            intersection.t = FLT_MAX;
+            return intersection;
+        }
 
         if (t >= 0) {
         

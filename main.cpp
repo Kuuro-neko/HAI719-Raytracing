@@ -36,6 +36,8 @@ using namespace std;
 
 #include "src/Material.h"
 
+#include <time.h> 
+
 
 // -------------------------------------------
 // OpenGL/GLUT application code.
@@ -170,6 +172,7 @@ void idle () {
 void ray_trace_from_camera() {
     int w = glutGet(GLUT_WINDOW_WIDTH)  ,   h = glutGet(GLUT_WINDOW_HEIGHT);
     std::cout << "Ray tracing a " << w << " x " << h << " image" << std::endl;
+    clock_t start = clock();
     camera.apply();
     Vec3 pos , dir;
     //    unsigned int nsamples = 100;
@@ -188,7 +191,8 @@ void ray_trace_from_camera() {
             image[x + y*w] /= nsamples;
         }
     }
-    std::cout << "\tDone" << std::endl;
+    clock_t end = clock();
+    std::cout << "\tDone in "  << (double)(end-start) / CLOCKS_PER_SEC << " seconds" << std::endl;
 
     std::string filename = "./rendu.ppm";
     ofstream f(filename.c_str(), ios::binary);
@@ -234,6 +238,10 @@ void key (unsigned char keyPressed, int x, int y) {
         camera.apply();
         rays.clear();
         ray_trace_from_camera();
+        
+        break;
+    case '-':
+        selected_scene = (selected_scene - 1) % scenes.size();
         break;
     case '+':
         selected_scene++;
@@ -321,10 +329,13 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     selected_scene=2;
-    scenes.resize(3);
+    scenes.resize(4);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box();
+    scenes[3].setup_mesh();
+
+
 
     glutMainLoop ();
     return EXIT_SUCCESS;

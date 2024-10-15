@@ -50,9 +50,9 @@ struct RaySceneIntersection{
     unsigned int typeOfIntersectedObject;
     unsigned int objectIndex;
     float t;
-    RayTriangleIntersection rayMeshIntersection; // 2
+    RayTriangleIntersection rayMeshIntersection; // 3
     RaySphereIntersection raySphereIntersection; // 1
-    RaySquareIntersection raySquareIntersection; // 0
+    RaySquareIntersection raySquareIntersection; // 2
     RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
@@ -120,6 +120,18 @@ public:
                 }
             } 
         }
+        for (int i = 0; i < meshes.size(); i++) {
+            RayTriangleIntersection intersection = meshes[i].intersect(ray);
+            if (intersection.intersectionExists) {
+                if (intersection.t < result.t && intersection.t >= epsilon) {
+                    result.typeOfIntersectedObject = 3;
+                    result.rayMeshIntersection = intersection;
+                    result.t = intersection.t;
+                    result.objectIndex = i;
+                    result.intersectionExists = true;
+                }
+            } 
+        }
         return result;
     }
 
@@ -150,6 +162,11 @@ public:
                 material = squares[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
                 normal = raySceneIntersection.raySquareIntersection.normal;
+                break;
+            case 3:
+                material = meshes[raySceneIntersection.objectIndex].material;
+                intersection = raySceneIntersection.rayMeshIntersection.intersection;
+                normal = raySceneIntersection.rayMeshIntersection.normal;
                 break;
             case 0:
             default:
@@ -299,7 +316,7 @@ public:
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
             // base settings : 0.0    1.5      0.0
-            light.pos = Vec3( 0.0, 1.3, 0.0 );
+            light.pos = Vec3( 0.0, 2.5, 0.0 );
             light.radius = 1.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -371,7 +388,7 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-        */
+    */    
        
     /*
         { //Front Wall
@@ -420,6 +437,49 @@ public:
 
     }
 
+    void setup_mesh() {
+        meshes.clear();
+        spheres.clear();
+        squares.clear();
+        lights.clear();
+
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( 0.0, 3., 0.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
+
+        {
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/tripod.off");
+            m.translate(Vec3(0., 0., 0.));
+            m.scale(Vec3(2., 2., 2.));
+            m.rotate_x(90);
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.988, 0.557, 0.675 );
+            m.material.specular_material = Vec3( 0.988, 0.557, 0.675 );
+            m.material.shininess = 16;
+        }
+
+        {
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0. , -3.5 , 0.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 1.,0.,0. );
+            s.material.specular_material = Vec3( 0.2,0.2,0.2 );
+            s.material.shininess = 20;
+        }
+        
+    }
 };
 
 
