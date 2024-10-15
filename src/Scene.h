@@ -121,20 +121,19 @@ public:
         Vec3 normal;
         Vec3 intersection;
         Vec3 direction;
+        Vec3 L, R, V;
+
+        Ray newRay;
         switch (raySceneIntersection.typeOfIntersectedObject) {
             case 1:
                 material = spheres[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
                 normal = raySceneIntersection.raySphereIntersection.normal;
-
-                color = material.diffuse_material;
                 break;
             case 2:
                 material = squares[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
                 normal = raySceneIntersection.raySquareIntersection.normal;
-
-                color = material.diffuse_material;
                 break;
             case 0:
             default:
@@ -143,20 +142,22 @@ public:
         }
         color = ambiant_material;
         for (int i = 0; i < lights.size(); i++) {
-            // Diffuse
-            Vec3 L = lights[i].pos - intersection;
+            L = lights[i].pos - intersection;
             L.normalize();
-            float dotLN = Vec3::dot(L, normal);
-            color =+ 1. * material.diffuse_material * dotLN;
+            if (!computeIntersection(Ray(intersection, L)).intersectionExists) {
+                // Diffuse
+                color += 1. * material.diffuse_material * Vec3::dot(L, normal);
 
-            // Specular
-            Vec3 R = 2. * dotLN * normal - L;
-            Vec3 V = ray.origin() - intersection;
-            V.normalize();
-            color += 1. * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
+                // Specular
+                R = 2. * Vec3::dot(normal, L) * normal - L;
+                R.normalize();
+                V = ray.origin() - intersection;
+                V.normalize();
+                color += 1. * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
+            }
         }
         if (NRemainingBounces > 0) {
-            return color + rayTraceRecursive(Ray(intersection, direction), NRemainingBounces-1);    
+            return color + rayTraceRecursive(Ray(intersection, R), NRemainingBounces-1);    
         } else {
             return color;
         }
