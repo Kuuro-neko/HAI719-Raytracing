@@ -96,21 +96,27 @@ public:
         b = 2.*Vec3::dot(d, (o-m_center));
         c = (o-m_center).squareLength() - pow(r,2.);
         delta = pow(b,2) - 4*a*c;
+
         if (delta < 0) {
             intersection.intersectionExists = false;
             intersection.t = FLT_MAX;
             return intersection;
-        } else 
-        if (delta > 0) {
-            intersection.intersectionExists = true;
-            t = (-b+sqrt(delta))/(2*a);
-            t1 = (-b-sqrt(delta))/(2*a);
-            if (t1 < t) t = t1;
-        } else
-        if (delta == 0) {
-            intersection.intersectionExists = true;
-            t = -2/(2*a);
         }
+
+        float sqrtDelta = sqrt(delta);
+        t = (-b - sqrtDelta) / (2 * a);
+        t1 = (-b + sqrtDelta) / (2 * a);
+
+        if (t1 > 0 && t1 < t ) {
+            t = t1;
+        }
+
+        if (t < 0) {
+            intersection.intersectionExists = false;
+            intersection.t = FLT_MAX;
+            return intersection;
+        }
+        intersection.intersectionExists = true;
         intersection.t = t;
         intersection.intersection = o + t*d;
         intersection.normal = (intersection.intersection - m_center);

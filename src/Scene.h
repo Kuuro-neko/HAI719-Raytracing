@@ -15,6 +15,13 @@
 
 #include <GL/glut.h>
 
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
 
 enum LightType {
     LightType_Spherical,
@@ -88,10 +95,11 @@ public:
         result.typeOfIntersectedObject = 0;
         result.objectIndex = -1;
         result.t = FLT_MAX;
+        float epsilon = 0.001;
         for (int i = 0; i < spheres.size(); i++) {
             RaySphereIntersection intersection = spheres[i].intersect(ray);
             if (intersection.intersectionExists) {
-                if (intersection.t < result.t && intersection.t >= 0.001) {
+                if (intersection.t < result.t && intersection.t >= epsilon) {
                     result.typeOfIntersectedObject = 1;
                     result.raySphereIntersection = intersection;
                     result.t = intersection.t;
@@ -103,7 +111,7 @@ public:
         for (int i = 0; i < squares.size(); i++) {
             RaySquareIntersection intersection = squares[i].intersect(ray);
             if (intersection.intersectionExists) {
-                if (intersection.t < result.t && intersection.t >= 0.001) {
+                if (intersection.t < result.t && intersection.t >= epsilon) {
                     result.typeOfIntersectedObject = 2;
                     result.raySquareIntersection = intersection;
                     result.t = intersection.t;
@@ -120,7 +128,7 @@ public:
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color;
 
-        Vec3 ambiant_material = Vec3(0.,0.,0.);
+        Vec3 ambiant_material = Vec3(0.1,0.1,0.1);
         Material material;
 
         float Isd = 0.8;
@@ -154,14 +162,14 @@ public:
             L.normalize();
             if (!computeIntersection(Ray(intersection, L)).intersectionExists) {
                 // Diffuse
-                color += Isd * material.diffuse_material * Vec3::dot(L, normal);
+                color += Isd * material.diffuse_material * max(0.0, Vec3::dot(L, normal));
 
                 // Specular
                 R = 2. * Vec3::dot(normal, L) * normal - L;
                 R.normalize();
                 V = ray.origin() - intersection;
                 V.normalize();
-                color += Iss * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
+                color += Iss * material.specular_material * pow(max(0.0, Vec3::dot(R, V)),material.shininess);
            
                 // Ombres douces
                 /*
@@ -291,8 +299,8 @@ public:
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
             // base settings : 0.0    1.5      0.0
-            light.pos = Vec3( 0.0, 2., 0.0 );
-            light.radius = 2.5f;
+            light.pos = Vec3( 0.0, 1.3, 0.0 );
+            light.radius = 1.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
             light.material = Vec3(1,1,1);
