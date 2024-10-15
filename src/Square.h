@@ -98,9 +98,7 @@ public:
 
         }
         intersection.intersectionExists = false;
-        intersection.t = -1;
-        
-
+        intersection.t = FLT_MAX;
         return intersection;
     }
 };

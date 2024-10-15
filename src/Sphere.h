@@ -113,6 +113,8 @@ public:
         }
         intersection.t = t;
         intersection.intersection = o + t*d;
+        intersection.normal = (intersection.intersection - m_center);
+        intersection.normal.normalize();
         return intersection;
     }
 };
