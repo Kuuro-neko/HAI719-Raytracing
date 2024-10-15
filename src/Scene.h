@@ -9,6 +9,9 @@
 #include "Square.h"
 #include "Vec3.h"
 
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 
 #include <GL/glut.h>
 
@@ -88,22 +91,24 @@ public:
         for (int i = 0; i < spheres.size(); i++) {
             RaySphereIntersection intersection = spheres[i].intersect(ray);
             if (intersection.intersectionExists) {
-                if (intersection.t < result.t) {
+                if (intersection.t < result.t && intersection.t >= 0.001) {
                     result.typeOfIntersectedObject = 1;
                     result.raySphereIntersection = intersection;
                     result.t = intersection.t;
                     result.objectIndex = i;
+                    result.intersectionExists = true;
                 }
             } 
         }
         for (int i = 0; i < squares.size(); i++) {
             RaySquareIntersection intersection = squares[i].intersect(ray);
             if (intersection.intersectionExists) {
-                if (intersection.t < result.t) {
+                if (intersection.t < result.t && intersection.t >= 0.001) {
                     result.typeOfIntersectedObject = 2;
                     result.raySquareIntersection = intersection;
                     result.t = intersection.t;
                     result.objectIndex = i;
+                    result.intersectionExists = true;
                 }
             } 
         }
@@ -117,6 +122,9 @@ public:
 
         Vec3 ambiant_material = Vec3(0.,0.,0.);
         Material material;
+
+        float Isd = 0.8;
+        float Iss = Isd;
 
         Vec3 normal;
         Vec3 intersection;
@@ -146,16 +154,36 @@ public:
             L.normalize();
             if (!computeIntersection(Ray(intersection, L)).intersectionExists) {
                 // Diffuse
-                color += 1. * material.diffuse_material * Vec3::dot(L, normal);
+                color += Isd * material.diffuse_material * Vec3::dot(L, normal);
 
                 // Specular
                 R = 2. * Vec3::dot(normal, L) * normal - L;
                 R.normalize();
                 V = ray.origin() - intersection;
                 V.normalize();
-                color += 1. * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
+                color += Iss * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
+           
+                // Ombres douces
+                /*
+                Light random_light;
+                int blocked = 0;
+                int nb_ech = 10;
+                for (int j = 0; j < nb_ech; j++) {
+                    random_light = lights[i];
+                    random_light.pos[0] += 0.01 * (std::rand()%101)-0.5; 
+                    random_light.pos[1] += 0.01 * (std::rand()%101)-0.5; 
+                    L = random_light.pos - intersection;
+                    L.normalize();
+                    if (computeIntersection(Ray(intersection, L)).intersectionExists) {
+                        blocked++;
+                    }
+                }
+                shading = (float(nb_ech)-float(blocked))/float(nb_ech);
+                */
             }
         }
+        // uncomment this disables shadows
+        //color = material.diffuse_material;
         if (NRemainingBounces > 0) {
             return color + rayTraceRecursive(Ray(intersection, R), NRemainingBounces-1);    
         } else {
@@ -165,6 +193,7 @@ public:
 
 
     Vec3 rayTrace( Ray const & rayStart ) {
+        std::srand(std::time(nullptr));
         //TODO appeler la fonction recursive
         int bounces = 0;
         Vec3 color = rayTraceRecursive(rayStart, bounces);
@@ -261,7 +290,8 @@ public:
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3( 0.0, 1.5, 0.0 );
+            // base settings : 0.0    1.5      0.0
+            light.pos = Vec3( 0.0, 2., 0.0 );
             light.radius = 2.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -320,7 +350,7 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-
+/*
         { //Ceiling
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -333,6 +363,8 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
+        */
+       
     /*
         { //Front Wall
             squares.resize( squares.size() + 1 );

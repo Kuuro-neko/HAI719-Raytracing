@@ -98,7 +98,7 @@ public:
         delta = pow(b,2) - 4*a*c;
         if (delta < 0) {
             intersection.intersectionExists = false;
-            intersection.t = -1.;
+            intersection.t = FLT_MAX;
             return intersection;
         } else 
         if (delta > 0) {
