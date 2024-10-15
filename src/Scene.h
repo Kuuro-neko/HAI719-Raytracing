@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "Material.h"
 #include "Mesh.h"
 #include "Sphere.h"
 #include "Square.h"
@@ -113,27 +114,44 @@ public:
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color;
-        Vec3 diffuse_material;
+
+        Vec3 ambiant_material = Vec3(0.5,0.5,0.5);
+        Material material;
+
+        Vec3 normal;
         Vec3 intersection;
         Vec3 direction;
         switch (raySceneIntersection.typeOfIntersectedObject) {
             case 1:
-                diffuse_material = spheres[raySceneIntersection.objectIndex].material.diffuse_material;
+                material = spheres[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
+                normal = raySceneIntersection.raySphereIntersection.normal;
 
-                color = diffuse_material;
+                color = material.diffuse_material;
                 break;
             case 2:
-                diffuse_material = squares[raySceneIntersection.objectIndex].material.diffuse_material;
+                material = squares[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
+                normal = raySceneIntersection.raySquareIntersection.normal;
 
-                color = diffuse_material;
+                color = material.diffuse_material;
                 break;
             case 0:
             default:
                 return Vec3(0.2f, 0.2f, 0.3f);
                 break;
         }
+        color = Vec3(0.,0.,0.);
+        for (int i = 0; i < lights.size(); i++) {
+            // Diffuse
+            Vec3 LN = lights[i].pos - intersection;
+            LN.normalize();
+            float dotLN = Vec3::dot(LN, normal);
+            color =+ 1 * material.diffuse_material * dotLN;
+
+            // Specular
+        }
+
         if (NRemainingBounces > 0) {
             return color + rayTraceRecursive(Ray(intersection, direction), NRemainingBounces-1);    
         } else {
