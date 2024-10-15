@@ -115,7 +115,7 @@ public:
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color;
 
-        Vec3 ambiant_material = Vec3(0.5,0.5,0.5);
+        Vec3 ambiant_material = Vec3(0.,0.,0.);
         Material material;
 
         Vec3 normal;
@@ -141,17 +141,20 @@ public:
                 return Vec3(0.2f, 0.2f, 0.3f);
                 break;
         }
-        color = Vec3(0.,0.,0.);
+        color = ambiant_material;
         for (int i = 0; i < lights.size(); i++) {
             // Diffuse
-            Vec3 LN = lights[i].pos - intersection;
-            LN.normalize();
-            float dotLN = Vec3::dot(LN, normal);
-            color =+ 1 * material.diffuse_material * dotLN;
+            Vec3 L = lights[i].pos - intersection;
+            L.normalize();
+            float dotLN = Vec3::dot(L, normal);
+            color =+ 1. * material.diffuse_material * dotLN;
 
             // Specular
+            Vec3 R = 2. * dotLN * normal - L;
+            Vec3 V = ray.origin() - intersection;
+            V.normalize();
+            color += 1. * material.specular_material * pow(Vec3::dot(R, V),material.shininess);
         }
-
         if (NRemainingBounces > 0) {
             return color + rayTraceRecursive(Ray(intersection, direction), NRemainingBounces-1);    
         } else {
