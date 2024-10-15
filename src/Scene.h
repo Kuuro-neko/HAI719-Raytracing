@@ -109,31 +109,44 @@ public:
         return result;
     }
 
-
-
-
-
+    
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color;
+        Vec3 diffuse_material;
+        Vec3 intersection;
+        Vec3 direction;
         switch (raySceneIntersection.typeOfIntersectedObject) {
             case 1:
-                color = spheres[raySceneIntersection.objectIndex].material.diffuse_material;
+                diffuse_material = spheres[raySceneIntersection.objectIndex].material.diffuse_material;
+                intersection = raySceneIntersection.raySphereIntersection.intersection;
+
+                color = diffuse_material;
                 break;
             case 2:
-                color = squares[raySceneIntersection.objectIndex].material.diffuse_material;
+                diffuse_material = squares[raySceneIntersection.objectIndex].material.diffuse_material;
+                intersection = raySceneIntersection.raySquareIntersection.intersection;
+
+                color = diffuse_material;
                 break;
             case 0:
             default:
-                color = Vec3(0.2f, 0.2f, 0.3f);
+                return Vec3(0.2f, 0.2f, 0.3f);
+                break;
         }
-        return color;
+        if (NRemainingBounces > 0) {
+            return color + rayTraceRecursive(Ray(intersection, direction), NRemainingBounces-1);    
+        } else {
+            return color;
+        }
     }
 
 
     Vec3 rayTrace( Ray const & rayStart ) {
         //TODO appeler la fonction recursive
-        Vec3 color = rayTraceRecursive(rayStart, 0);
+        int bounces = 0;
+        Vec3 color = rayTraceRecursive(rayStart, bounces);
+        color /= (bounces+1);
         return color;
     }
 
