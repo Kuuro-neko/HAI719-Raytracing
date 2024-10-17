@@ -222,7 +222,7 @@ public:
     Vec3 rayTrace( Ray const & rayStart ) {
         std::srand(std::time(nullptr));
         //TODO appeler la fonction recursive
-        int bounces = 0;
+        int bounces = 1;
         Vec3 color = rayTraceRecursive(rayStart, bounces);
         color /= (bounces+1);
         return color;
@@ -459,10 +459,10 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/tripod.off");
-            m.translate(Vec3(0., 0., 0.));
-            m.scale(Vec3(2., 2., 2.));
-            m.rotate_x(90);
+            m.loadOFF("mesh/gorilla.off");
+            m.translate(Vec3(0., -1.9, 0.));
+            m.scale(Vec3(0.015, 0.015, 0.015));
+            m.rotate_x(0);
             m.build_arrays();
             m.material.diffuse_material = Vec3( 0.988, 0.557, 0.675 );
             m.material.specular_material = Vec3( 0.988, 0.557, 0.675 );
@@ -473,12 +473,63 @@ public:
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
             s.m_center = Vec3(0. , -3.5 , 0.);
-            s.m_radius = 2.f;
+            s.m_radius = 3.6f;
             s.build_arrays();
             s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 1.,0.,0. );
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
+        }
+
+        { //Floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(4., 4., 1.));
+            s.rotate_x(-90);
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+        }
+
+        { //Back Wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.scale(Vec3(2., 2., 1.));
+            s.translate(Vec3(0., 0., -2.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1.,1.,1. );
+            s.material.specular_material = Vec3( 1.,1.,1. );
+            s.material.shininess = 16;
+        }
+        { //Left Wall
+
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.scale(Vec3(2., 2., 1.));
+            s.translate(Vec3(0., 0., -2.));
+            s.rotate_y(90);
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1.,0.,0. );
+            s.material.specular_material = Vec3( 1.,0.,0. );
+            s.material.shininess = 16;
+        }
+
+        { //Right Wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(2., 2., 1.));
+            s.rotate_y(-90);
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.0,1.0,0.0 );
+            s.material.specular_material = Vec3( 0.0,1.0,0.0 );
+            s.material.shininess = 16;
         }
         
     }
