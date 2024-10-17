@@ -177,7 +177,9 @@ public:
         for (int i = 0; i < lights.size(); i++) {
             L = lights[i].pos - intersection;
             L.normalize();
-            if (!computeIntersection(Ray(intersection, L)).intersectionExists) {
+            RaySceneIntersection shadowIntersection = computeIntersection(Ray(intersection, L));
+            float tLight = (lights[i].pos - intersection).length() / L.length();
+            if (!shadowIntersection.intersectionExists || (shadowIntersection.intersectionExists && shadowIntersection.t > tLight)) {
                 // Diffuse
                 color += Isd * material.diffuse_material * max(0.0, Vec3::dot(L, normal));
 
@@ -316,7 +318,7 @@ public:
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
             // base settings : 0.0    1.5      0.0
-            light.pos = Vec3( 0.0, 2.5, 0.0 );
+            light.pos = Vec3( 0.0, 1.5, 0.0 );
             light.radius = 1.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -375,7 +377,7 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-/*
+
         { //Ceiling
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -388,9 +390,9 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-    */    
        
-    /*
+       
+  
         { //Front Wall
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -403,7 +405,7 @@ public:
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-*/
+
 
         { //GLASS Sphere
 

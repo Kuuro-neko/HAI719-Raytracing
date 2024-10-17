@@ -77,6 +77,12 @@ public:
             intersection.t = FLT_MAX;
             return intersection;
         }
+
+        if (Vec3::dot(ray.direction(), m_normal) > 0) {
+            intersection.intersectionExists = false;
+            intersection.t = FLT_MAX;
+            return intersection;
+        }
         
         float D = Vec3::dot(m_bottom_left, m_normal);
         float t = (D - Vec3::dot(ray.origin(), m_normal))/(Vec3::dot(ray.direction(), m_normal));
