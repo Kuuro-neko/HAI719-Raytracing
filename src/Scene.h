@@ -15,6 +15,8 @@
 
 #include <GL/glut.h>
 
+#include <random>
+
 #ifndef max
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #endif
@@ -22,6 +24,16 @@
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
+
+float random_float() {
+    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+float random_float(float min, float max) {
+    return min + (max - min) * random_float();
+}
 
 enum LightType {
     LightType_Spherical,
@@ -179,7 +191,7 @@ public:
             L.normalize();
             RaySceneIntersection shadowIntersection = computeIntersection(Ray(intersection, L));
             float tLight = (lights[i].pos - intersection).length() / L.length();
-            if (!shadowIntersection.intersectionExists || (shadowIntersection.intersectionExists && shadowIntersection.t > tLight)) {
+            if (!shadowIntersection.intersectionExists || (shadowIntersection.intersectionExists && shadowIntersection.t > tLight)) { // Si pas d'intersection vers la lumière ou (il y a une intersection et elle est après la lumière)
                 // Diffuse
                 color += Isd * material.diffuse_material * max(0.0, Vec3::dot(L, normal));
 
@@ -191,26 +203,36 @@ public:
                 color += Iss * material.specular_material * pow(max(0.0, Vec3::dot(R, V)),material.shininess);
            
                 // Ombres douces
-                /*
                 Light random_light;
                 int blocked = 0;
-                int nb_ech = 10;
+                int nb_ech = 5;
+                float delta = 0.4;
                 for (int j = 0; j < nb_ech; j++) {
-                    random_light = lights[i];
-                    random_light.pos[0] += 0.01 * (std::rand()%101)-0.5; 
-                    random_light.pos[1] += 0.01 * (std::rand()%101)-0.5; 
+                    float x = random_float(-delta, delta);
+                    float y = random_float(-delta, delta);
+                    float z = random_float(-delta, delta);
+                    random_light.pos = lights[i].pos + Vec3(x, y, z);
                     L = random_light.pos - intersection;
                     L.normalize();
-                    if (computeIntersection(Ray(intersection, L)).intersectionExists) {
+                    RaySceneIntersection shadowIntersection = computeIntersection(Ray(intersection, L));
+                    float tLight = (random_light.pos - intersection).length() / L.length();
+                    if (shadowIntersection.intersectionExists && shadowIntersection.t < tLight) {
                         blocked++;
                     }
                 }
-                shading = (float(nb_ech)-float(blocked))/float(nb_ech);
-                */
+                float shadow = 1. - (float)blocked / (float)nb_ech;
+                color *= shadow;
             }
         }
         // uncomment this disables shadows
         //color = material.diffuse_material;
+        switch (material.type) {
+            case Material_Diffuse_Blinn_Phong:
+                NRemainingBounces = 0;
+                break;
+            default:
+                break;
+        }
         if (NRemainingBounces > 0) {
             return color + rayTraceRecursive(Ray(intersection, R), NRemainingBounces-1);    
         } else {
@@ -531,6 +553,7 @@ public:
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
         }
+        
         
     }
 };

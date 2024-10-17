@@ -17,6 +17,9 @@ public:
     Vec3( float x , float y , float z ) {
        mVals[0] = x; mVals[1] = y; mVals[2] = z;
     }
+    Vec3( float f ) {
+       mVals[0] = f; mVals[1] = f; mVals[2] = f;
+    }
     float & operator [] (unsigned int c) { return mVals[c]; }
     float operator [] (unsigned int c) const { return mVals[c]; }
     Vec3 operator = (Vec3 const & other) {

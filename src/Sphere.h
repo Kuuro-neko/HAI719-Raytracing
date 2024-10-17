@@ -5,7 +5,6 @@
 #include "Mesh.h"
 #include <cmath>
 #include "math.h"
-#include "Eq.h"
 
 struct RaySphereIntersection{
     bool intersectionExists;
