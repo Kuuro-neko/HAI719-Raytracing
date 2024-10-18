@@ -162,6 +162,7 @@ public:
         Vec3 intersection;
         Vec3 direction;
         Vec3 L, R, V;
+        Vec3 Reflechi;
 
         Ray newRay;
         switch (raySceneIntersection.typeOfIntersectedObject) {
@@ -196,7 +197,7 @@ public:
                 color += Isd * material.diffuse_material * max(0.0, Vec3::dot(L, normal));
 
                 // Specular
-                R = 2. * Vec3::dot(ray.origin(), normal) * normal;
+                R = 2.*(Vec3::dot(normal, L))*normal-L;
                 R.normalize();
                 V = ray.origin() - intersection;
                 V.normalize();
@@ -227,6 +228,7 @@ public:
         // uncomment this disables shadows
         //color = material.diffuse_material;
         switch (material.type) {
+            case Material_Mirror:
             case Material_Diffuse_Blinn_Phong:
                 NRemainingBounces = 0;
                 break;
@@ -234,7 +236,7 @@ public:
                 break;
         }
         if (NRemainingBounces > 0) {
-            return color + rayTraceRecursive(Ray(intersection, R), NRemainingBounces-1);    
+            return color + rayTraceRecursive(Ray(intersection, 2. * Vec3::dot(ray.origin(), normal) * normal), NRemainingBounces-1);    
         } else {
             return color;
         }
