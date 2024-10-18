@@ -196,7 +196,7 @@ public:
                 color += Isd * material.diffuse_material * max(0.0, Vec3::dot(L, normal));
 
                 // Specular
-                R = 2. * Vec3::dot(normal, L) * normal - L;
+                R = 2. * Vec3::dot(ray.origin(), normal) * normal;
                 R.normalize();
                 V = ray.origin() - intersection;
                 V.normalize();
