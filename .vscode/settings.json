@@ -106,5 +106,5 @@
     "typeinfo": "cpp",
     "ctime": "cpp"
   },
-  "ppm-pgm-viewer-for-vscode.imagepreview.hidePanel": true
+  "ppm-pgm-viewer-for-vscode.imagepreview.hidePanel": false
 }

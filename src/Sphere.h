@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include <cmath>
 #include "math.h"
+#include "Functions.h"
 
 struct RaySphereIntersection{
     bool intersectionExists;
@@ -93,8 +94,8 @@ public:
         float delta, a, b, c;
         a = Vec3::dot(d,d);
         b = 2.*Vec3::dot(d, (o-m_center));
-        c = (o-m_center).squareLength() - pow(r,2.);
-        delta = pow(b,2) - 4*a*c;
+        c = Vec3::dot((o-m_center),(o-m_center)) - r*r;
+        delta = b*b - 4*a*c;
 
         if (delta < 0) {
             intersection.intersectionExists = false;
@@ -106,20 +107,20 @@ public:
         t = (-b - sqrtDelta) / (2 * a);
         t1 = (-b + sqrtDelta) / (2 * a);
 
-        if (t1 > 0 && t1 < t ) {
+        if (t1 > EPSILON && t1 < t ) {
             t = t1;
         }
 
-        if (t < 0) {
+        if (t < -EPSILON) {
             intersection.intersectionExists = false;
             intersection.t = FLT_MAX;
             return intersection;
         }
-        intersection.intersectionExists = true;
-        intersection.t = t;
         intersection.intersection = o + t*d;
         intersection.normal = (intersection.intersection - m_center);
         intersection.normal.normalize();
+        intersection.intersectionExists = true;
+        intersection.t = t;
         return intersection;
     }
 };

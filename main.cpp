@@ -37,6 +37,7 @@ using namespace std;
 #include "src/Material.h"
 
 #include <time.h> 
+#include "src/Functions.h"
 
 
 // -------------------------------------------
@@ -173,10 +174,11 @@ void ray_trace_from_camera() {
     int w = glutGet(GLUT_WINDOW_WIDTH)  ,   h = glutGet(GLUT_WINDOW_HEIGHT);
     std::cout << "Ray tracing a " << w << " x " << h << " image" << std::endl;
     clock_t start = clock();
+    clock_t end;
     camera.apply();
     Vec3 pos , dir;
-    //    unsigned int nsamples = 100;
-    unsigned int nsamples = 50;
+    //    unsigned int nsamples = 250;
+    unsigned int nsamples = 100;
     std::vector< Vec3 > image( w*h , Vec3(0,0,0) );
     for (int y=0; y<h; y++){
         for (int x=0; x<w; x++) {
@@ -189,10 +191,21 @@ void ray_trace_from_camera() {
                 image[x + y*w] += color;
             }
             image[x + y*w] /= nsamples;
+            gamma_correct(image[x + y*w]);
+        }
+        if ( y % (h/10) == 0 ) {
+            end = clock();
+            std::cout << "\r[";
+            for( unsigned int i = 0 ; i < 10 ; ++i ) {
+                if ( i < y/(h/10) ) std::cout << "■";
+                else std::cout << " ";
+            }
+            std::cout << "] " << (int)(100.*y/h) << "%  " << "(Remaining time : " << (double)(end-start) / CLOCKS_PER_SEC / (y+1) * (h-y-1) << " seconds)" << std::flush;
         }
     }
-    clock_t end = clock();
-    std::cout << "\tDone in "  << (double)(end-start) / CLOCKS_PER_SEC << " seconds" << std::endl;
+    std::cout << "\r[■■■■■■■■■■] 100%";
+    end = clock();
+    std::cout << "  Done in "  << (double)(end-start) / CLOCKS_PER_SEC << " seconds                         " << std::endl;
 
     std::string filename = "./rendu.ppm";
     ofstream f(filename.c_str(), ios::binary);
@@ -329,11 +342,12 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     selected_scene=2;
-    scenes.resize(4);
+    scenes.resize(5);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box();
     scenes[3].setup_mesh();
+    scenes[4].setup_rt_in_a_weekend();
 
 
 

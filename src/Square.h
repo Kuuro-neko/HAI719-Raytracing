@@ -4,6 +4,7 @@
 #include <vector>
 #include "Mesh.h"
 #include <cmath>
+#include "Functions.h"
 
 struct RaySquareIntersection{
     bool intersectionExists;
@@ -88,13 +89,13 @@ public:
         float t = (D - Vec3::dot(ray.origin(), m_normal))/(Vec3::dot(ray.direction(), m_normal));
 
         // Intersection derrière la caméra
-        if (t < 0) {
+        if (t < -EPSILON) {
             intersection.intersectionExists = false;
             intersection.t = FLT_MAX;
             return intersection;
         }
 
-        if (t >= 0) {
+        if (t >= EPSILON) {
         
             Vec3 p = ray.origin() + t*ray.direction();
             Vec3 q = p - m_bottom_left;

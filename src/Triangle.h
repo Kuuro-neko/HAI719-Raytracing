@@ -81,6 +81,13 @@ public:
             return result;
         }
 
+        // Check if in front of the triangle
+        if (Vec3::dot(ray.direction(), m_normal) > 0) {
+            result.intersectionExists = false;
+            result.t = FLT_MAX;
+            return result;
+        }
+
         // 2) check that the triangle is "in front of" the ray:
         float D = Vec3::dot( m_c[0] , m_normal );
         float t = ( D - Vec3::dot( ray.origin() , m_normal ) ) / Vec3::dot( ray.direction() , m_normal );
