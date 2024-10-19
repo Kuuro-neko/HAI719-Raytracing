@@ -171,8 +171,6 @@ public:
             float tLight = (lights[i].pos - intersection).length() / L.length();
             RaySceneIntersection shadowIntersection = computeIntersection(Ray(intersection, L), tLight);
             if (!shadowIntersection.intersectionExists) { // Si pas d'intersection vers la lumière ou (il y a une intersection et elle est après la lumière)
-                // Ambient
-                color += material.ambient_material * 0.3;
                 // Diffuse
                 color += material.diffuse_material * max(0.0, dotLN) * (1. - material.transparency);
 

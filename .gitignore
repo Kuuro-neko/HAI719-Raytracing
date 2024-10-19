@@ -1,7 +1,4 @@
 main
 main.o
 rendu.ppm
-src/Camera.o
-src/imageLoader.o
-src/Mesh.o
-src/Trackball.o
+src/*.o
