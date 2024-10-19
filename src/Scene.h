@@ -225,12 +225,6 @@ public:
                     direction = refract(ray.direction(), normal, ri);
                 }
                 direction = refract(ray.direction(), normal, ri);
-                direction.normalize();
-                newRay = Ray(intersection, direction);
-                newRay.origin() += newRay.direction() * EPSILON;
-                newColor = rayTraceRecursive(newRay, NRemainingBounces-1) + 0.2 * rayTraceRecursive(Ray(intersection, reflect(ray.direction(), normal)), NRemainingBounces-1);
-                for (int i = 0; i < 3; i++) newColor[i]*=material.diffuse_material[i];
-                return color + newColor;
                 break;
             case Material_Diffuse_Blinn_Phong:
                 direction = normal + random_unit_vector();
@@ -463,7 +457,7 @@ public:
             s.m_radius = 0.75f;
             s.build_arrays();
             s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 1.,1.,1. );
+            s.material.diffuse_material = Vec3( 0.8 );
             s.material.specular_material = Vec3(  1.,1.,1. );
             s.material.shininess = 16;
             s.material.transparency = 0.;
@@ -565,7 +559,7 @@ public:
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3( 0.0, 3., 0.0 );
+            light.pos = Vec3( 0.0, 3., 2.0 );
             light.radius = 1.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -573,83 +567,178 @@ public:
             light.isInCamSpace = false;
         }
 
-        {
-            meshes.resize( meshes.size() + 1 );
-            Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/pig.off");
-            m.translate(Vec3(0., -1.9, 0.));
-            m.scale(Vec3(0.015, 0.015, 0.015));
-            m.rotate_x(0);
-            m.build_arrays();
-            m.material.diffuse_material = Vec3( 0.988, 0.557, 0.675 );
-            m.material.specular_material = Vec3( 0.988, 0.557, 0.675 );
-            m.material.shininess = 16;
+        { // Diffuse Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0. , 0. , -16.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1 , 0.6, 0.2);
+            s.material.specular_material = Vec3( 0.1 , 0.6, 0.2);
+            s.material.shininess = 20;
+        }
+
+        { // Mirror Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(4. , 0. , -8.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
         }
 
         {
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/blob-closed.off");
+            m.translate(Vec3(0., 0.9, -4.));
+            m.scale(Vec3(1.5));
+            m.rotate_x(180);
+            m.rotate_y(180);
+            m.build_arrays();
+            m.material.type = Material_Glass;
+            m.material.index_medium = 1.333;
+            m.material.transparency = 0.9;
+            m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+            m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+            m.material.shininess = 32;
+        }
+
+        { // Eye 1
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(0. , -3.5 , 0.);
-            s.m_radius = 3.6f;
+            s.m_center = Vec3(0.2, -1. , -4.8);
+            s.m_radius = 0.3f;
             s.build_arrays();
-            s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 1.,0.,0. );
-            s.material.specular_material = Vec3( 0.2,0.2,0.2 );
+            s.material.diffuse_material = Vec3( 1.);
+            s.material.specular_material = Vec3( 1. );
             s.material.shininess = 20;
         }
+
+        { // Pupil 1
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0.2, -1. , -4.55);
+            s.m_radius = 0.1f;
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.);
+            s.material.specular_material = Vec3( 1. );
+            s.material.shininess = 20;
+        }
+
+        { // Eye 2
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-0.7 , -1. , -4.95);
+            s.m_radius = 0.3f;
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1.);
+            s.material.specular_material = Vec3( 1. );
+            s.material.shininess = 20;
+        }
+
+        { // Pupil 2
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-0.7 , -1. , -4.7);
+            s.m_radius = 0.1f;
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.);
+            s.material.specular_material = Vec3( 1. );
+            s.material.shininess = 20;
+        }
+
 
         { //Floor
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(4., 4., 1.));
+            s.scale(Vec3(50., 50., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 0.8,0.8,0. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
+    }
 
-        { //Back Wall
-            squares.resize( squares.size() + 1 );
-            Square & s = squares[squares.size() - 1];
-            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.scale(Vec3(2., 2., 1.));
-            s.translate(Vec3(0., 0., -2.));
-            s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,1.,1. );
-            s.material.specular_material = Vec3( 1.,1.,1. );
-            s.material.shininess = 16;
-        }
-        { //Left Wall
-
-            squares.resize( squares.size() + 1 );
-            Square & s = squares[squares.size() - 1];
-            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.scale(Vec3(2., 2., 1.));
-            s.translate(Vec3(0., 0., -2.));
-            s.rotate_y(90);
-            s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,0.,0. );
-            s.material.specular_material = Vec3( 1.,0.,0. );
-            s.material.shininess = 16;
+    void setup_random_spheres() {
+        int nSpheres = 50;
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( 0.0, 6., 2.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
         }
 
-        { //Right Wall
+        { //Floor
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
-            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2., 2., 1.));
-            s.rotate_y(-90);
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -4.));
+            s.scale(Vec3(100., 100., 1.));
+            s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.0,1.0,0.0 );
-            s.material.specular_material = Vec3( 0.0,1.0,0.0 );
-            s.material.shininess = 16;
+            s.material.diffuse_material = Vec3( 0.8,0.8,0. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
         }
-        
-        
+
+        { // Mirror Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-3. , 0. , -22.);
+            s.m_radius = 4.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+        }
+
+        { // Mirror Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(4. , -2. , -15.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+        }
+
+        { // Glass Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-1. , -2.5 , -8.);
+            s.m_radius = 1.5f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 20;
+        }
+
+        for (int i = 0; i < nSpheres; i++) {
+            float radius = random_float(0.25, 1.5);
+
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(random_float(-30., 30.), -4+radius, random_float(-50., -2.));
+            s.m_radius = radius;
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( random_float(0., 1.), random_float(0., 1.), random_float(0., 1.));
+            s.material.specular_material = Vec3( random_float(0., 1.), random_float(0., 1.), random_float(0., 1.));
+            s.material.shininess = random_float(0., 100.);
+        }
     }
 };
 
