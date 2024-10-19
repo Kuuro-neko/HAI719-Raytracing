@@ -203,42 +203,9 @@ public:
                 color *= shadow;
             }
         }
-        float ri, cos_theta, sin_theta;
-        bool cannot_refract;
-        Vec3 direction, newColor;
+        Vec3 newColor;
         Ray newRay;
-        switch (material.type) {
-            case Material_Glass:
-                if (Vec3::dot(ray.direction(), normal) > 0) {
-                    ri = 1./material.index_medium;
-                } else {
-                    ri = material.index_medium;
-                }
-                cos_theta = min(Vec3::dot(ray.direction()*-1., normal), 1.0);
-                sin_theta = sqrt(1. - cos_theta*cos_theta);
-                cannot_refract = ri * sin_theta > 1.0;
-                if (cannot_refract || reflectance(cos_theta, ri) > random_float()) {
-                    direction = reflect(ray.direction(), normal);
-                } else {
-                    direction = refract(ray.direction(), normal, ri);
-                }
-                direction = refract(ray.direction(), normal, ri);
-                break;
-            case Material_Diffuse_Blinn_Phong:
-                direction = normal + random_unit_vector();
-                if (direction.length() <= EPSILON) {
-                    direction = normal;
-                }
-                break;
-            case Material_Mirror:
-                direction = reflect(ray.direction(), normal);
-                break;
-            default:
-                break;
-        }
-        direction.normalize();
-        newRay = Ray(intersection, direction);
-        newRay.origin() += newRay.direction() * EPSILON;
+        material.scatter(ray, normal, intersection, newRay);
         newColor = rayTraceRecursive(newRay, NRemainingBounces-1);
         for (int i = 0; i < 3; i++) newColor[i]*=material.diffuse_material[i];
         return color + newColor;
