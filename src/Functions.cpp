@@ -2,7 +2,7 @@
 
 float random_float() {
     static std::uniform_real_distribution<float> distribution(0.0, 1.0);
-    static std::mt19937 generator;
+    static std::mt19937 generator(static_cast<unsigned int>(time(nullptr)));
     return distribution(generator);
 }
 

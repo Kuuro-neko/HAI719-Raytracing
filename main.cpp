@@ -70,9 +70,10 @@ void printUsage () {
          << "------------------" << endl
          << " ?: Print help" << endl
          << " w: Toggle Wireframe Mode" << endl
-         << " g: Toggle Gouraud Shading Mode" << endl
+         << " r: Ray trace the scene" << endl
+         << " u: Recompute the random scenes" << endl
          << " f: Toggle full screen mode" << endl
-         << " +: Change scene" << endl
+         << " +/-: Change scene" << endl
          << " <drag>+<left button>: rotate model" << endl
          << " <drag>+<right button>: move model" << endl
          << " <drag>+<middle button>: zoom" << endl
@@ -178,7 +179,7 @@ void ray_trace_from_camera() {
     camera.apply();
     Vec3 pos , dir;
     //    unsigned int nsamples = 250;
-    unsigned int nsamples = 20;
+    unsigned int nsamples = 10;
     std::vector< Vec3 > image( w*h , Vec3(0,0,0) );
     for (int y=0; y<h; y++){
         for (int x=0; x<w; x++) {
@@ -252,6 +253,9 @@ void key (unsigned char keyPressed, int x, int y) {
         rays.clear();
         ray_trace_from_camera();
         
+        break;
+    case 'u':
+        scenes[selected_scene].setup_random_spheres();
         break;
     case '-':
         selected_scene = (selected_scene - 1) % scenes.size();
