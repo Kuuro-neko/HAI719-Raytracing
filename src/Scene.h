@@ -160,11 +160,13 @@ public:
                 material = spheres[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
                 normal = raySceneIntersection.raySphereIntersection.normal;
+                material.texture(material.diffuse_material, raySceneIntersection.raySphereIntersection.phi, raySceneIntersection.raySphereIntersection.theta);
                 break;
             case 2: // Square
                 material = squares[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
                 normal = raySceneIntersection.raySquareIntersection.normal;
+                material.texture(material.diffuse_material, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v);
                 break;
             case 3: // Mesh
                 material = meshes[raySceneIntersection.objectIndex].material;
@@ -182,6 +184,8 @@ public:
             L.normalize();
             float dotLN = Vec3::dot(L, normal);
             // Diffuse
+            
+            
             color += Vec3::compProduct(lights[0].material, material.diffuse_material) * max(0.0, dotLN) * (1. - material.transparency);
 
             // Specular
@@ -374,6 +378,10 @@ public:
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Checkerboard;
+            s.material.checkerboard_color1 = Vec3(1.);
+            s.material.checkerboard_color2 = Vec3(0.);
+            s.material.checkerboard_scale = 8.;
         }
 
         { //Ceiling
@@ -428,7 +436,7 @@ public:
             s.m_radius = 0.75f;
             s.build_arrays();
             s.material.type = Material_Mirror; 
-            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.diffuse_material = Vec3( 0.7 );
             s.material.specular_material = Vec3(  1.,1.,1. );
             s.material.shininess = 16;
             s.material.transparency = 0.;
@@ -518,6 +526,10 @@ public:
             s.material.diffuse_material = Vec3( 0.8,0.8,0. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Checkerboard;
+            s.material.checkerboard_color1 = Vec3(1.);
+            s.material.checkerboard_color2 = Vec3(0.);
+            s.material.checkerboard_scale = 100.;
         }
     }
 

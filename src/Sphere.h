@@ -121,6 +121,8 @@ public:
         intersection.normal.normalize();
         intersection.intersectionExists = true;
         intersection.t = t;
+        intersection.phi = acos(intersection.normal[2]*-1.);
+        intersection.theta = atan2(intersection.normal[1]*-1., intersection.normal[0]) + M_PI;
         return intersection;
     }
 };

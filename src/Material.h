@@ -14,6 +14,12 @@ enum MaterialType {
     Material_Mirror
 };
 
+enum TextureType {
+    Texture_None,
+    Texture_Checkerboard,
+    Texture_Image
+};
+
 struct Material {
     Vec3 ambient_material;
     Vec3 diffuse_material;
@@ -24,10 +30,18 @@ struct Material {
     float transparency;
 
     MaterialType type;
+    TextureType texture_type;
+    
+    Vec3 checkerboard_color1;
+    Vec3 checkerboard_color2;
+    float checkerboard_scale;
 
     Material();
 
     void scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &intersection, Ray &ray_out);
+
+    void texture(Vec3 &color, const float u, const float v) const;
+    void sphere_texture(Vec3 &color, const float phi, const float theta) const;
 };
 
 #endif // MATERIAL_H
