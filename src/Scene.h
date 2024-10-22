@@ -491,6 +491,7 @@ public:
             s.material.type = Material_Glass;
             s.material.diffuse_material = Vec3( 0.8 );
             s.material.specular_material = Vec3( 0.8 );
+            s.material.index_medium = 1.5;
             s.material.shininess = 20;
         }
         { // Diffuse Sphere
@@ -525,12 +526,12 @@ public:
             s.scale(Vec3(50., 50., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.8,0.8,0. );
+            s.material.diffuse_material = Vec3( 0.1,0.2,0.5 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
             s.material.texture_type = Texture_Checkerboard;
             s.material.checkerboard_color1 = Vec3(1.);
-            s.material.checkerboard_color2 = Vec3(0.);
+            s.material.checkerboard_color2 = Vec3( 0.1,0.2,0.5 );
             s.material.checkerboard_scale = 100.;
         }
     }

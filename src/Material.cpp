@@ -71,10 +71,6 @@ void Material::texture(Vec3 &color, float u, float v) {
             x = int(u * image.w);
             y = int(v * image.h);
             index = y * image.w + x;
-            /*
-            x = (int)(u * image.w) % image.w;
-            y = (int)(v * image.h) % image.h;
-            index = y * image.w + x;*/
             color = Vec3(image.data[index].r/255., image.data[index].g/255., image.data[index].b/255.);
             break;
         default:
