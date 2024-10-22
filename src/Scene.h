@@ -160,7 +160,7 @@ public:
                 material = spheres[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
                 normal = raySceneIntersection.raySphereIntersection.normal;
-                material.texture(material.diffuse_material, raySceneIntersection.raySphereIntersection.phi, raySceneIntersection.raySphereIntersection.theta);
+                material.sphere_texture(material.diffuse_material, raySceneIntersection.raySphereIntersection.phi, raySceneIntersection.raySphereIntersection.theta);
                 break;
             case 2: // Square
                 material = squares[raySceneIntersection.objectIndex].material;
@@ -502,6 +502,8 @@ public:
             s.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
+            s.material.texture_type = Texture_Image;
+            s.material.load_texture("img/sphereTextures/s2.ppm");
         }
         { // Mirror Sphere
             spheres.resize( spheres.size() + 1 );

@@ -1,4 +1,5 @@
 #include "Material.h"
+#include "imageLoader.h"    
 
 Material::Material() {
     type = Material_Diffuse_Blinn_Phong;
@@ -46,7 +47,8 @@ void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &inters
 }
 
 
-void Material::texture(Vec3 &color, const float u, const float v) const {
+void Material::texture(Vec3 &color, float u, float v) {
+    int x, y, index;
     switch (texture_type) {
         case Texture_Checkerboard:
             if ((int)(u*checkerboard_scale) % 2 == (int)(v*checkerboard_scale) % 2) {
@@ -56,20 +58,41 @@ void Material::texture(Vec3 &color, const float u, const float v) const {
             }
             break;
         case Texture_Image:
+            if (image.w < 1 || image.h < 1) {
+                    if ((int)(u*8.) % 2 == (int)(v*8.) % 2) {
+                        color = Vec3(0., 0., 0.);
+                    } else {
+                        color = Vec3(1.,0.,1.);   
+                    }
+                break;
+            }
+            u = clamp(u, 0., 1.);
+            v = 1. - clamp(v, 0., 1.);
+            x = int(u * image.w);
+            y = int(v * image.h);
+            index = y * image.w + x;
+            /*
+            x = (int)(u * image.w) % image.w;
+            y = (int)(v * image.h) % image.h;
+            index = y * image.w + x;*/
+            color = Vec3(image.data[index].r/255., image.data[index].g/255., image.data[index].b/255.);
             break;
         default:
             break;
     }
 }
 
-void Material::sphere_texture(Vec3 &color, const float phi, const float theta) const {
+void Material::sphere_texture(Vec3 &color, const float phi, const float theta) {
     switch (texture_type) {
         case Texture_Checkerboard:
-            texture(color, phi/(2*M_PI), theta/M_PI);
-            break;
         case Texture_Image:
+            texture(color, phi/(2*M_PI), theta/M_PI);
             break;
         default:
             break;
     }
+}
+
+void Material::load_texture(const std::string &filename) {
+    ppmLoader::load_ppm(image, filename);
 }
