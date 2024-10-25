@@ -34,6 +34,7 @@ struct MeshVertex {
     Vec3 position; // une position
     Vec3 normal; // une normale
     float u,v; // coordonnees uv
+    Vec3 color;
 };
 
 struct MeshTriangle {
@@ -104,7 +105,7 @@ public:
 
     Material material;
 
-    void loadOFF (const std::string & filename);
+    void loadOFF (const std::string & filename, bool colored);
     void recomputeNormals ();
     void centerAndScaleToUnit ();
     void scaleUnit ();

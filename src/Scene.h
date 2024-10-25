@@ -578,7 +578,7 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/blob-closed.off");
+            m.loadOFF("mesh/blob-closed-colored.off", true);
             m.translate(Vec3(0., 0.9, -4.));
             m.scale(Vec3(1.5));
             m.rotate_x(180);
