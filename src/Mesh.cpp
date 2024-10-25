@@ -2,7 +2,10 @@
 #include <iostream>
 #include <fstream>
 
-void Mesh::loadOFF (const std::string & filename) {
+// Loads colored or uncolored mesh from OFF file
+// Uncolored vertices line : x y z
+// Colored vertices line : x y z r g b rgbmax
+void Mesh::loadOFF (const std::string & filename, bool colored) {
     std::ifstream in (filename.c_str ());
     if (!in)
         exit (EXIT_FAILURE);
@@ -11,8 +14,18 @@ void Mesh::loadOFF (const std::string & filename) {
     in >> offString >> sizeV >> sizeT >> tmp;
     vertices.resize (sizeV);
     triangles.resize (sizeT);
-    for (unsigned int i = 0; i < sizeV; i++)
-        in >> vertices[i].position;
+    if (colored) {
+        for (unsigned int i = 0; i < sizeV; i++) {
+            in >> vertices[i].position >> vertices[i].color >> tmp;
+            vertices[i].color /= 255.0;
+            vertices[i].colored = true;
+        }
+    } else {
+        for (unsigned int i = 0; i < sizeV; i++) {
+            in >> vertices[i].position;
+            vertices[i].colored = false;
+        }
+    }
     int s;
     for (unsigned int i = 0; i < sizeT; i++) {
         in >> s;

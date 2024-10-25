@@ -172,6 +172,10 @@ public:
                 material = meshes[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.rayMeshIntersection.intersection;
                 normal = raySceneIntersection.rayMeshIntersection.normal;
+                L = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][0]].color;
+                R = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][1]].color;
+                V = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][2]].color;
+                material.diffuse_material = raySceneIntersection.rayMeshIntersection.w0 * L + raySceneIntersection.rayMeshIntersection.w1 * R + raySceneIntersection.rayMeshIntersection.w2 * V;
                 break;
             case 0: // No intersection
             default:
@@ -578,7 +582,7 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/blob-closed.off");
+            m.loadOFF("mesh/blob-closed.off", false);
             m.translate(Vec3(0., 0.9, -4.));
             m.scale(Vec3(1.5));
             m.rotate_x(180);
@@ -821,6 +825,87 @@ public:
             s.material.shininess = 16;
             s.material.transparency = 1.0;
             s.material.index_medium = 1.4;
+        }
+    }
+
+    // Starting to thing i may have too many scenes !
+    void setup_flamingo() {
+        meshes.clear();
+        spheres.clear();
+        squares.clear();
+        lights.clear();
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( -1.0, 8., 2.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( 1.0, 8., 2.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
+        { //Floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(50., 50., 1.));
+            s.rotate_x(-90);
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.8,0.8,0.  );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Checkerboard;
+            s.material.checkerboard_color1 = Vec3(0.8, 0.8, 0.);
+            s.material.checkerboard_color2 = Vec3( 0.6,0.6,0.  );
+            s.material.checkerboard_scale = 100.;
+        }
+        { // Glass Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-4. , 0. , -8.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.index_medium = 1.5;
+            s.material.shininess = 20;
+        }
+        { // Mirror Sphere
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(4. , 0. , -8.);
+            s.m_radius = 2.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.8 );
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+        }
+        {
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/flamingo_lowpoly_colored.off", true);
+            m.scale(Vec3(2.5));
+            m.rotate_x(90);
+            m.rotate_y(90);
+            m.rotate_z(180);
+            m.translate(Vec3(0., 1., -8.));
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+            m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+            m.material.shininess = 6.;
         }
     }
 };

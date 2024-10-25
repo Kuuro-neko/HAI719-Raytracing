@@ -34,6 +34,8 @@ struct MeshVertex {
     Vec3 position; // une position
     Vec3 normal; // une normale
     float u,v; // coordonnees uv
+    bool colored;
+    Vec3 color;
 };
 
 struct MeshTriangle {
@@ -104,7 +106,7 @@ public:
 
     Material material;
 
-    void loadOFF (const std::string & filename);
+    void loadOFF (const std::string & filename, bool colored);
     void recomputeNormals ();
     void centerAndScaleToUnit ();
     void scaleUnit ();
@@ -213,6 +215,7 @@ public:
             RayTriangleIntersection intersection = triangle.getIntersection(ray);
             if (intersection.intersectionExists && intersection.t < closestIntersection.t) {
                 closestIntersection = intersection;
+                closestIntersection.tIndex = i;
             }
         }
         return closestIntersection;
