@@ -258,7 +258,7 @@ void key (unsigned char keyPressed, int x, int y) {
         scenes[selected_scene].setup_random_spheres();
         break;
     case '-':
-        selected_scene = (selected_scene - 1) % scenes.size();
+        selected_scene = (selected_scene + scenes.size() - 1) % scenes.size();
         break;
     case '+':
         selected_scene++;
@@ -346,13 +346,14 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     selected_scene=2;
-    scenes.resize(6);
+    scenes.resize(7);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box();
     scenes[3].setup_mesh();
     scenes[4].setup_rt_in_a_weekend();
     scenes[5].setup_random_spheres();
+    scenes[6].setup_debug_refraction();
 
 
 
