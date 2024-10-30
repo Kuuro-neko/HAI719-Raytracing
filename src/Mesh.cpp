@@ -14,12 +14,12 @@ void Mesh::loadOFF (const std::string & filename) {
     in >> offString >> sizeV >> sizeT >> tmp;
     vertices.resize (sizeV);
     triangles.resize (sizeT);
-    hasColors = offString == "COFF";
-    if (hasColors)  {
-        colors.resize (sizeV);
+    colorType = (offString == "COFF") ? ColorType_Vertex : ColorType_None;
+    if (colorType == ColorType_Vertex) {
+        vertColors.resize (sizeV);
         for (unsigned int i = 0; i < sizeV; i++) {
-            in >> vertices[i].position >> colors[i] >> tmp;
-            colors[i] /= 255.0;
+            in >> vertices[i].position >> vertColors[i] >> tmp;
+            vertColors[i] /= 255.0;
         }
     } else {
         for (unsigned int i = 0; i < sizeV; i++) {

@@ -346,7 +346,7 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     selected_scene=2;
-    scenes.resize(8);
+    scenes.resize(9);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box();
@@ -355,6 +355,7 @@ int main (int argc, char ** argv) {
     scenes[5].setup_random_spheres();
     scenes[6].setup_debug_refraction();
     scenes[7].setup_flamingo();
+    scenes[8].setup_raccoon();
 
 
 
