@@ -172,10 +172,12 @@ public:
                 material = meshes[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.rayMeshIntersection.intersection;
                 normal = raySceneIntersection.rayMeshIntersection.normal;
-                L = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][0]].color;
-                R = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][1]].color;
-                V = meshes[raySceneIntersection.objectIndex].vertices[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][2]].color;
-                material.diffuse_material = raySceneIntersection.rayMeshIntersection.w0 * L + raySceneIntersection.rayMeshIntersection.w1 * R + raySceneIntersection.rayMeshIntersection.w2 * V;
+                if (meshes[raySceneIntersection.objectIndex].hasColors) {
+                    L = meshes[raySceneIntersection.objectIndex].colors[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][0]];
+                    R = meshes[raySceneIntersection.objectIndex].colors[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][1]];
+                    V = meshes[raySceneIntersection.objectIndex].colors[meshes[raySceneIntersection.objectIndex].triangles[raySceneIntersection.rayMeshIntersection.tIndex][2]];
+                    material.diffuse_material = raySceneIntersection.rayMeshIntersection.w0 * L + raySceneIntersection.rayMeshIntersection.w1 * R + raySceneIntersection.rayMeshIntersection.w2 * V;
+                }
                 break;
             case 0: // No intersection
             default:
@@ -582,7 +584,7 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/blob-closed.off", false);
+            m.loadOFF("mesh/blob-closed.off");
             m.translate(Vec3(0., 0.9, -4.));
             m.scale(Vec3(1.5));
             m.rotate_x(180);
@@ -896,7 +898,7 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/flamingo_lowpoly_colored.off", true);
+            m.loadOFF("mesh/flamingo_lowpoly_colored.off");
             m.scale(Vec3(2.5));
             m.rotate_x(90);
             m.rotate_y(90);

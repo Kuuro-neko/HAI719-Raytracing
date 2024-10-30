@@ -34,8 +34,6 @@ struct MeshVertex {
     Vec3 position; // une position
     Vec3 normal; // une normale
     float u,v; // coordonnees uv
-    bool colored;
-    Vec3 color;
 };
 
 struct MeshTriangle {
@@ -58,8 +56,6 @@ struct MeshTriangle {
     // membres :
     unsigned int v[3];
 };
-
-
 
 
 class Mesh {
@@ -98,6 +94,8 @@ protected:
 public:
     std::vector<MeshVertex> vertices;
     std::vector<MeshTriangle> triangles;
+    std::vector< Vec3 > colors;
+    bool hasColors;
 
     std::vector< float > positions_array;
     std::vector< float > normalsArray;
@@ -106,7 +104,7 @@ public:
 
     Material material;
 
-    void loadOFF (const std::string & filename, bool colored);
+    void loadOFF (const std::string & filename);
     void recomputeNormals ();
     void centerAndScaleToUnit ();
     void scaleUnit ();
