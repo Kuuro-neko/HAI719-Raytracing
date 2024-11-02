@@ -18,6 +18,7 @@
 #include "Functions.h"
 
 #define MAXBOUNCES 5
+#define NB_ECH 15
 
 enum LightType {
     LightType_Spherical,
@@ -205,7 +206,8 @@ public:
             // Ombres douces
             Light random_light;
             int blocked = 0;
-            int nb_ech = 10;
+            //int nb_ech = 10;
+            int nb_ech = NB_ECH;
             float delta = lights[i].radius/2.;
             for (int j = 0; j < nb_ech; j++) {
                 float x = random_float(-delta, delta);
@@ -938,46 +940,37 @@ public:
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
         }
-        { //Floor
+        { //Flying carpet checker part
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(50., 50., 1.));
+            s.scale(Vec3(2., 4., 1.));
             s.rotate_x(-90);
+            s.translate(Vec3(0., 0., -4.));
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.8,0.8,0.  );
+            s.material.diffuse_material = Vec3( 0.5,0.,0.5  );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
-            s.material.shininess = 16;
+            s.material.shininess = 4;
             s.material.texture_type = Texture_Checkerboard;
-            s.material.checkerboard_color1 = Vec3(0.8, 0.8, 0.);
-            s.material.checkerboard_color2 = Vec3( 0.6,0.6,0.  );
-            s.material.checkerboard_scale = 100.;
+            s.material.checkerboard_color1 = Vec3(0.5, 0., 0.5);
+            s.material.checkerboard_color2 = Vec3( 0.6,0.,0.6  );
+            s.material.checkerboard_scale = 16.;
         }
-        { // Glass Sphere
-            spheres.resize( spheres.size() + 1 );
-            Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(-4. , 0. , -8.);
-            s.m_radius = 2.f;
+        { //Flying carpet red part
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(2.5, 5., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(0., -0.0001, -3.5));
             s.build_arrays();
-            s.material.type = Material_Glass;
-            s.material.diffuse_material = Vec3( 0.8 );
-            s.material.specular_material = Vec3( 0.8 );
-            s.material.index_medium = 1.5;
-            s.material.shininess = 20;
+            s.material.diffuse_material = Vec3( 0.9, 0.2, 0.);
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 4;
         }
-        { // Mirror Sphere
-            spheres.resize( spheres.size() + 1 );
-            Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(4. , 0. , -8.);
-            s.m_radius = 2.f;
-            s.build_arrays();
-            s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 0.8 );
-            s.material.specular_material = Vec3( 0.8 );
-            s.material.shininess = 32;
-        }
-        {
+        { // Raccoon
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
             m.loadOFF("mesh/raccoon_low_poly_colored.off");
@@ -988,6 +981,73 @@ public:
             m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
+        }
+        {   // Staff
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/magic_staff_low_poly_colored.off");
+            m.rotate_y(-90);
+            m.rotate_z(90);
+            m.scale(Vec3(0.15));
+            m.translate(Vec3(1., 0.2, -2.7));
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+            m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+            m.material.shininess = 6.;
+        }
+        { // Staff orb
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-1.85 , 0.35 , -2.7);
+            s.m_radius = 0.14f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 0.451, 0.6627, 0.7608 );
+            s.material.specular_material = Vec3( 1. );
+            s.material.index_medium = 1.5;
+            s.material.shininess = 64;
+            s.material.transparency = 0.65;
+        }
+        { // Fire orb
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(4. , 3. , -8.);
+            s.m_radius = 1.3f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.8 , 0., 0.);
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+            s.material.texture_type = Texture_Image;
+            s.material.load_texture("img/sphereTextures/s2.ppm");
+        }
+        { // Wind orb
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-4. , 2. , -5.);
+            s.m_radius = 0.9f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 1.);
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+            s.material.transparency = 0.4;
+            s.material.texture_type = Texture_Image;
+            s.material.load_texture("img/sphereTextures/s4.ppm");
+        }
+        { // Water orb
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-0.2 , 3. , -1.);
+            s.m_radius = 1.4f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3(0.5, 0.53, 0.8);
+            s.material.specular_material = Vec3( 0.8 );
+            s.material.shininess = 32;
+            s.material.transparency = 0.8;
+            s.material.texture_type = Texture_Image;
+            s.material.load_texture("img/sphereTextures/s7.ppm");
         }
     }
 };
