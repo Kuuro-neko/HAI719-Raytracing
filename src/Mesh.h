@@ -57,6 +57,11 @@ struct MeshTriangle {
     unsigned int v[3];
 };
 
+enum ColorType {
+    ColorType_Vertex,
+    ColorType_Face,
+    ColorType_None
+};
 
 class Mesh {
 protected:
@@ -94,8 +99,9 @@ protected:
 public:
     std::vector<MeshVertex> vertices;
     std::vector<MeshTriangle> triangles;
-    std::vector< Vec3 > colors;
-    bool hasColors;
+    std::vector< Vec3 > vertColors;
+    std::vector< Vec3 > faceColors;
+    ColorType colorType;
 
     std::vector< float > positions_array;
     std::vector< float > normalsArray;
