@@ -32,30 +32,27 @@ void Mesh::loadOFF(const std::string & filename) {
         }
     }
 
-    // Clear newline left in stream after reading vertex data
     std::string line;
     std::getline(in, line);
 
     int s;
-    std::getline(in, line);  // Read the first line for face data
+    std::getline(in, line);
     std::istringstream lineStream(line);
     lineStream >> s;
-
+    // Check 1ere ligne de triangles pour savoir si on a des couleurs de face ou non
     for (unsigned int j = 0; j < 3; j++) {
         lineStream >> triangles[0].v[j];
     }
     if (!(lineStream >> std::ws).eof()) {
         colorType = ColorType_Face;
-        faceColors.resize(sizeT);  // Reserve space for colors
+        faceColors.resize(sizeT);
         lineStream >> faceColors[0][0] >> faceColors[0][1] >> faceColors[0][2];
-        faceColors[0] /= 255.0f;  // Normalize RGB values to [0,1]
-        std::cout << "Color type: " << colorType << std::endl;
-        std::cout << "Face color: " << faceColors[0] << std::endl;
+        faceColors[0] /= 255.0f;
     }
-
-    // Process remaining lines for faces
+    
+    // Lignes suivantes
     for (unsigned int i = 1; i < sizeT; i++) {
-        std::getline(in, line);  // Read each line for a face
+        std::getline(in, line);
         std::istringstream lineStream(line);
         lineStream >> s;
 
