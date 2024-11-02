@@ -980,12 +980,15 @@ public:
         {
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/raccoon_lowpoly_colored.off");
-            m.scale(Vec3(2.5));
-            m.rotate_x(90);
-            m.rotate_y(90);
-            m.rotate_z(180);
-            m.translate(Vec3(0., 1., -8.));
+            m.loadOFF("mesh/raccoon_low_poly_colored.off");
+            std::cout << "Loaded mesh with " << meshes[0].vertices.size() << " vertices and " << meshes[0].triangles.size() << " faces" << std::endl;
+            std::cout << "Colors : " << meshes[0].faceColors.size() << std::endl;
+            for (int i = 0; i < meshes[0].faceColors.size(); i++) {
+                std::cout << meshes[0].faceColors[i] << std::endl;
+            }
+            m.rotate_y(-90);
+            m.scale(Vec3(2.));
+            m.translate(Vec3(0., -2., -5.));
             m.build_arrays();
             m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
