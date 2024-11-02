@@ -18,7 +18,7 @@
 #include "Functions.h"
 
 #define MAXBOUNCES 5
-#define NB_ECH 15
+#define NB_ECH 10
 
 enum LightType {
     LightType_Spherical,
