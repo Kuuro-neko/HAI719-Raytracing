@@ -58,6 +58,8 @@ static bool fullScreen = false;
 std::vector<Scene> scenes;
 unsigned int selected_scene;
 
+MatrixUtilities matrixUtilities;
+
 std::vector< std::pair< Vec3 , Vec3 > > rays;
 
 void printUsage () {
@@ -177,9 +179,11 @@ void ray_trace_from_camera() {
     clock_t start = clock();
     clock_t end;
     camera.apply();
+    matrixUtilities.updated();
+    matrixUtilities.updateMatrices();
     Vec3 pos , dir;
     //    unsigned int nsamples = 250;
-    unsigned int nsamples = 10;
+    unsigned int nsamples = 100;
     std::vector< Vec3 > image( w*h , Vec3(0,0,0) );
     for (int y=0; y<h; y++){
         for (int x=0; x<w; x++) {
@@ -187,7 +191,7 @@ void ray_trace_from_camera() {
                 float u = ((float)(x) + (float)(rand())/(float)(RAND_MAX)) / w;
                 float v = ((float)(y) + (float)(rand())/(float)(RAND_MAX)) / h;
                 // this is a random uv that belongs to the pixel xy.
-                screen_space_to_world_space_ray(u,v,pos,dir);
+                matrixUtilities.screen_space_to_world_space_ray(u,v,pos,dir);
                 Vec3 color = scenes[selected_scene].rayTrace( Ray(pos , dir) );
                 image[x + y*w] += color;
             }
@@ -345,6 +349,7 @@ int main (int argc, char ** argv) {
 
 
     camera.move(0., 0., -3.1);
+    matrixUtilities = MatrixUtilities();
     selected_scene=2;
     scenes.resize(9);
     scenes[0].setup_single_sphere();

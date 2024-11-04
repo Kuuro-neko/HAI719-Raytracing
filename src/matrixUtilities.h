@@ -1,7 +1,78 @@
-#ifndef matrixUtilities_H
-#define matrixUtilities_H
+#ifndef MATRIXUTILITIES_H
+#define MATRIXUTILITIES_H
 
 #include "Vec3.h"
+#include <GL/gl.h>
+
+template <class T>
+bool gluInvertMatrix(const T m[16], T invOut[16]);
+
+template <class T>
+void mult(const T m[16], T x, T y, T z, T w, T &resX, T &resY, T &resZ, T &resW);
+
+class MatrixUtilities {
+public:
+    GLdouble modelview[16];
+    GLdouble modelviewInverse[16];
+    GLdouble projection[16];
+    GLdouble projectionInverse[16];
+    GLdouble nearAndFarPlanes[2];
+    bool planesUpdates = false;
+    bool modelviewUpdated = false;
+    bool projectionUpdated = false;
+
+    MatrixUtilities() {
+        updateMatrices();
+    }
+
+    void updated() {
+        modelviewUpdated = true;
+        projectionUpdated = true;
+        planesUpdates = true;
+    }
+
+    void updateMatrices() {
+        if (modelviewUpdated) {
+            glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+            gluInvertMatrix(modelview, modelviewInverse);
+            modelviewUpdated = false;
+        }
+
+        if (projectionUpdated) {
+            glGetDoublev(GL_PROJECTION_MATRIX, projection);
+            gluInvertMatrix(projection, projectionInverse);
+            projectionUpdated = false;
+        }
+
+        if (planesUpdates) {
+            glGetDoublev(GL_DEPTH_RANGE, nearAndFarPlanes);
+            planesUpdates = false;
+        }
+    }
+
+    Vec3 cameraSpaceToWorldSpace(const Vec3 &pCS) {
+        updateMatrices();
+        GLdouble res[4];
+        mult(modelviewInverse, (GLdouble)pCS[0], (GLdouble)pCS[1], (GLdouble)pCS[2], (GLdouble)1.0, res[0], res[1], res[2], res[3]);
+        return Vec3(res[0] / res[3], res[1] / res[3], res[2] / res[3]);
+    }
+
+    Vec3 screen_space_to_worldSpace(float u, float v) {
+        updateMatrices();
+        GLdouble resInt[4];
+        mult(projectionInverse, (GLdouble)2.f * u - 1.f, -((GLdouble)2.f * v - 1.f), nearAndFarPlanes[0], (GLdouble)1.0, resInt[0], resInt[1], resInt[2], resInt[3]);
+        GLdouble res[4];
+        mult(modelviewInverse, resInt[0], resInt[1], resInt[2], resInt[3], res[0], res[1], res[2], res[3]);
+
+        return Vec3(res[0] / res[3], res[1] / res[3], res[2] / res[3]);
+    }
+
+    void screen_space_to_world_space_ray(float u, float v, Vec3 &position, Vec3 &direction) {
+        position = cameraSpaceToWorldSpace(Vec3(0, 0, 0));
+        direction = screen_space_to_worldSpace(u, v) - position;
+        direction.normalize();
+    }
+};
 
 template< class T >
 bool gluInvertMatrix(const T m[16], T invOut[16])
@@ -136,89 +207,12 @@ bool gluInvertMatrix(const T m[16], T invOut[16])
 
 
 
-
-
-
-template< class T  >
-void mult2( const T m[16] , T x , T y , T z , T w , T & resX , T & resY , T & resZ , T & resW ) {
-    resX = m[0] * x + m[1] * y + m[2] * z + m[3] * w;
-    resY = m[4] * x + m[5] * y + m[6] * z + m[7] * w;
-    resZ = m[8] * x + m[9] * y + m[10] * z + m[11] * w;
-    resW = m[12] * x + m[13] * y + m[14] * z + m[15] * w;
-}
-
-template< class T  >
-void mult2( const T m[16] , T x[4] , T res[4] ) {
-    res[0] = m[0] * x[0] + m[1] * x[1] + m[2] * x[2] + m[3] * x[3];
-    res[1] = m[4] * x[0] + m[5] * x[1] + m[6] * x[2] + m[7] * x[3];
-    res[2] = m[8] * x[0] + m[9] * x[1] + m[10] * x[2] + m[11] * x[3];
-    res[3] = m[12] * x[0] + m[13] * x[1] + m[14] * x[2] + m[15] * x[3];
-}
-
-
-
-
-
-
-
-template< class T  >
-void mult( const T m[16] , T x , T y , T z , T w , T & resX , T & resY , T & resZ , T & resW ) {
+template <class T>
+void mult(const T m[16], T x, T y, T z, T w, T &resX, T &resY, T &resZ, T &resW) {
     resX = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
     resY = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
     resZ = m[2] * x + m[6] * y + m[10] * z + m[14] * w;
     resW = m[3] * x + m[7] * y + m[11] * z + m[15] * w;
 }
 
-
-template< class T  >
-void mult( const T m[16] , T x[4] , T res[4] ) {
-    res[0] = m[0] * x[0] + m[4] * x[1] + m[8] * x[2] + m[12] * x[3];
-    res[1] = m[1] * x[0] + m[5] * x[1] + m[9] * x[2] + m[13] * x[3];
-    res[2] = m[2] * x[0] + m[6] * x[1] + m[10] * x[2] + m[14] * x[3];
-    res[3] = m[3] * x[0] + m[7] * x[1] + m[11] * x[2] + m[15] * x[3];
-}
-
-
-
-
-
-
-
-// These functions are not optimized, because you probably don't want to invert the camera matrices every time!
-Vec3 cameraSpaceToWorldSpace(Vec3 const & pCS) { // pCS : p in Camera Space
-    GLdouble modelview[16];
-    GLdouble modelviewInverse[16];
-    glMatrixMode (GL_MODELVIEW);
-    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
-    gluInvertMatrix( modelview , modelviewInverse );
-    GLdouble res[4];
-    mult(modelviewInverse , (GLdouble)pCS[0] , (GLdouble)pCS[1] , (GLdouble)pCS[2] , (GLdouble)1.0 , res[0] , res[1] , res[2] , res[3]);
-    return Vec3( res[0] / res[3] , res[1] / res[3] , res[2] / res[3] );
-}
-Vec3 screen_space_to_worldSpace( float u , float v ) {
-    // u et v sont entre 0 et 1 (0,0 est en haut a gauche de l'ecran)
-    GLdouble projection[16];
-    GLdouble projectionInverse[16];
-    glMatrixMode (GL_PROJECTION);
-    glGetDoublev( GL_PROJECTION_MATRIX, projection );
-    gluInvertMatrix( projection , projectionInverse );
-    GLdouble nearAndFarPlanes[2];
-    glGetDoublev( GL_DEPTH_RANGE , nearAndFarPlanes );
-    GLdouble modelview[16];
-    GLdouble modelviewInverse[16];
-    glMatrixMode (GL_MODELVIEW);
-    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
-    gluInvertMatrix( modelview , modelviewInverse );
-    GLdouble resInt[4];
-    mult(projectionInverse , (GLdouble)2.f*u - 1.f , -((GLdouble)2.f*v - 1.f) , nearAndFarPlanes[0] , (GLdouble)1.0 , resInt[0] , resInt[1] , resInt[2] , resInt[3]);
-    GLdouble res[4];
-    mult(modelviewInverse , resInt[0] , resInt[1] , resInt[2] , resInt[3] , res[0] , res[1] , res[2] , res[3]);
-    return Vec3( res[0] / res[3] , res[1] / res[3] , res[2] / res[3] );
-}
-void screen_space_to_world_space_ray(float u , float v , Vec3 & position , Vec3 & direction) {
-    position = cameraSpaceToWorldSpace( Vec3(0,0,0) );
-    direction = screen_space_to_worldSpace(u,v) - position;
-    direction.normalize();
-}
-
-#endif // matrixUtilities_H
+#endif // MATRIXUTILITIES_H
