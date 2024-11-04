@@ -40,6 +40,16 @@ using namespace std;
 #include "src/Functions.h"
 
 
+
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <fstream>
+#include <ctime>
+#include <random> // Include for random number generation
+
 // -------------------------------------------
 // OpenGL/GLUT application code.
 // -------------------------------------------
@@ -173,45 +183,59 @@ void idle () {
 }
 
 
+std::mutex imageMutex;
+
+thread_local std::mt19937 rng(std::random_device{}());
+
+void trace_line(int y, int w, int h, unsigned int nsamples, std::vector<Vec3>& image) {
+    Vec3 pos, dir;
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+    for (int x = 0; x < w; x++) {
+        for (unsigned int s = 0; s < nsamples; ++s) {
+            float u = ((float)(x) + dist(rng)) / w;
+            float v = ((float)(y) + dist(rng)) / h;
+            matrixUtilities.screen_space_to_world_space_ray(u, v, pos, dir);
+            Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir));
+
+            std::lock_guard<std::mutex> lock(imageMutex);
+            image[x + y * w] += color;
+        }
+        {
+            std::lock_guard<std::mutex> lock(imageMutex);
+            image[x + y * w] /= nsamples;
+            gamma_correct(image[x + y * w]);
+        }
+    }
+}
+
 void ray_trace_from_camera() {
-    int w = glutGet(GLUT_WINDOW_WIDTH)  ,   h = glutGet(GLUT_WINDOW_HEIGHT);
-    std::cout << "Ray tracing a " << w << " x " << h << " image" << std::endl;
+    int w = glutGet(GLUT_WINDOW_WIDTH), h = glutGet(GLUT_WINDOW_HEIGHT);
+    std::vector<Vec3> image(w * h, Vec3(0, 0, 0));
+    std::vector<std::thread> threads;
+    unsigned int nb_threads = std::thread::hardware_concurrency();
+
+    std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads" << std::endl;
     clock_t start = clock();
-    clock_t end;
+    
     camera.apply();
     matrixUtilities.updated();
     matrixUtilities.updateMatrices();
-    Vec3 pos , dir;
-    //    unsigned int nsamples = 250;
+    
     unsigned int nsamples = 10;
-    std::vector< Vec3 > image( w*h , Vec3(0,0,0) );
-    for (int y=0; y<h; y++){
-        for (int x=0; x<w; x++) {
-            for( unsigned int s = 0 ; s < nsamples ; ++s ) {
-                float u = ((float)(x) + (float)(rand())/(float)(RAND_MAX)) / w;
-                float v = ((float)(y) + (float)(rand())/(float)(RAND_MAX)) / h;
-                // this is a random uv that belongs to the pixel xy.
-                matrixUtilities.screen_space_to_world_space_ray(u,v,pos,dir);
-                Vec3 color = scenes[selected_scene].rayTrace( Ray(pos , dir) );
-                image[x + y*w] += color;
-            }
-            image[x + y*w] /= nsamples;
-            gamma_correct(image[x + y*w]);
-        }
-        if ( y % (h/10) == 0 ) {
-            end = clock();
-            std::cout << "\r[";
-            for( unsigned int i = 0 ; i < 10 ; ++i ) {
-                if ( i < y/(h/10) ) std::cout << "■";
-                else std::cout << " ";
-            }
-            std::cout << "] " << (int)(100.*y/h) << "%  " << "(Remaining time : " << (double)(end-start) / CLOCKS_PER_SEC / (y+1) * (h-y-1) << " seconds)" << std::flush;
-        }
-    }
-    std::cout << "\r[■■■■■■■■■■] 100%";
-    end = clock();
-    std::cout << "  Done in "  << (double)(end-start) / CLOCKS_PER_SEC << " seconds                         " << std::endl;
 
+    for (int y = 0; y < h; y++) {
+        threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    clock_t end = clock();
+    std::cout << "  Done in " << (double)(end - start) / CLOCKS_PER_SEC / nb_threads << " seconds" << std::endl;
+
+    // Save image
     std::string filename = "./rendu.ppm";
     ofstream f(filename.c_str(), ios::binary);
     if (f.fail()) {
