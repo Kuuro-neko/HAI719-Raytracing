@@ -39,16 +39,8 @@ using namespace std;
 #include <time.h> 
 #include "src/Functions.h"
 
-
-
-#include <iostream>
-#include <vector>
 #include <thread>
-#include <mutex>
-#include <atomic>
-#include <fstream>
-#include <ctime>
-#include <random> // Include for random number generation
+#include <random>
 
 // -------------------------------------------
 // OpenGL/GLUT application code.
@@ -182,9 +174,6 @@ void idle () {
     glutPostRedisplay ();
 }
 
-
-std::mutex imageMutex;
-
 thread_local std::mt19937 rng(std::random_device{}());
 
 void trace_line(int y, int w, int h, unsigned int nsamples, std::vector<Vec3>& image) {
@@ -197,15 +186,10 @@ void trace_line(int y, int w, int h, unsigned int nsamples, std::vector<Vec3>& i
             float v = ((float)(y) + dist(rng)) / h;
             matrixUtilities.screen_space_to_world_space_ray(u, v, pos, dir);
             Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir));
-
-            std::lock_guard<std::mutex> lock(imageMutex);
             image[x + y * w] += color;
         }
-        {
-            std::lock_guard<std::mutex> lock(imageMutex);
-            image[x + y * w] /= nsamples;
-            gamma_correct(image[x + y * w]);
-        }
+        image[x + y * w] /= nsamples;
+        gamma_correct(image[x + y * w]);
     }
 }
 
