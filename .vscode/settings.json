@@ -111,7 +111,8 @@
     "semaphore": "cpp",
     "stop_token": "cpp",
     "thread": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "iomanip": "cpp"
   },
   "ppm-pgm-viewer-for-vscode.imagepreview.hidePanel": false
 }

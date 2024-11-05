@@ -359,7 +359,7 @@ int main (int argc, char ** argv) {
     camera.move(0., 0., -3.1);
     matrixUtilities = MatrixUtilities();
     selected_scene=2;
-    scenes.resize(9);
+    scenes.resize(10);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box();
@@ -369,7 +369,7 @@ int main (int argc, char ** argv) {
     scenes[6].setup_debug_refraction();
     scenes[7].setup_flamingo();
     scenes[8].setup_raccoon();
-
+    scenes[9].setup_flamingo_pond();
 
 
     glutMainLoop ();

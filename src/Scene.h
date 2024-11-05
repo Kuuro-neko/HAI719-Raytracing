@@ -930,16 +930,6 @@ public:
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
         }
-        {
-            lights.resize( lights.size() + 1 );
-            Light & light = lights[lights.size() - 1];
-            light.pos = Vec3( 1.0, 8., 2.0 );
-            light.radius = 1.5f;
-            light.powerCorrection = 2.f;
-            light.type = LightType_Spherical;
-            light.material = Vec3(1,1,1);
-            light.isInCamSpace = false;
-        }
         { //Flying carpet checker part
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -1048,6 +1038,62 @@ public:
             s.material.transparency = 0.8;
             s.material.texture_type = Texture_Image;
             s.material.load_texture("img/sphereTextures/s7.ppm");
+        }
+    }
+
+    void setup_flamingo_pond() {
+        meshes.clear();
+        spheres.clear();
+        squares.clear();
+        lights.clear();
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( -1.0, 8., -19.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
+        { // Pond. Note : when i'll implement acceleration structures, i should break this mesh into smaller parts
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/pond.off");
+            m.scale(Vec3(3.));
+            m.translate(Vec3(1., -5., -3.));
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+            m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+            m.material.shininess = 6.;
+        }
+        { // Water
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(5., 3.5, 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(1., 0., 2.8));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.5,0.53,0.8 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 4;
+            s.material.type = Material_Mirror;
+        }
+        { // Flamingo
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/flamingo_lowpoly_colored.off");
+            m.scale(Vec3(0.8));
+            m.rotate_x(90);
+            m.rotate_y(115);
+            m.rotate_z(180);
+            m.translate(Vec3(3., -1.2, -1.));
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+            m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+            m.material.shininess = 6.;
         }
     }
 };
