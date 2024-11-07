@@ -13,6 +13,8 @@
 
 #include <cfloat>
 
+#include "AABB.h"
+
 
 // -------------------------------------------
 // Basic Mesh class
@@ -102,6 +104,7 @@ public:
     std::vector< Vec3 > vertColors;
     std::vector< Vec3 > faceColors;
     ColorType colorType;
+    AABB aabb;
 
     std::vector< float > positions_array;
     std::vector< float > normalsArray;
@@ -123,8 +126,21 @@ public:
         build_normals_array();
         build_UVs_array();
         build_triangles_array();
+        computeAABB();
     }
 
+    void computeAABB() {
+        Vec3 p0, p1;
+        p0 = Vec3(FLT_MAX);
+        p1 = Vec3(FLT_MIN);
+        for (int i = 0; i < vertices.size(); i++) {
+            for (int axis = 0; axis < 3; axis++) {
+                if (vertices[i].position[axis] < p0[axis]) p0[axis] = vertices[i].position[axis];
+                if (vertices[i].position[axis] > p1[axis]) p1[axis] = vertices[i].position[axis];
+            }
+        }
+        aabb = AABB(p0, p1);
+    }
 
     void translate( Vec3 const & translation ){
         for( unsigned int v = 0 ; v < vertices.size() ; ++v ) {
@@ -207,6 +223,8 @@ public:
     RayTriangleIntersection intersect( Ray const & ray ) const {
         RayTriangleIntersection closestIntersection;
         closestIntersection.t = FLT_MAX;
+        // Accelerer en testant avec l'AABB du mesh avant le triangle
+        if (!aabb.intersects(ray)) return closestIntersection;
         // Note :
         // Creer un objet Triangle pour chaque face
         // Vous constaterez des problemes de précision

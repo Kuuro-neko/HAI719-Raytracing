@@ -197,6 +197,7 @@ void ray_trace_from_camera() {
     int w = glutGet(GLUT_WINDOW_WIDTH), h = glutGet(GLUT_WINDOW_HEIGHT);
     std::vector<Vec3> image(w * h, Vec3(0, 0, 0));
     std::vector<std::thread> threads;
+
     unsigned int nb_threads = std::thread::hardware_concurrency();
 
     std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads" << std::endl;
