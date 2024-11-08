@@ -36,11 +36,15 @@ struct Material {
     Vec3 checkerboard_color2;
     float checkerboard_scale;
 
+    bool emissive;
+    Vec3 light_color;
+
     ppmLoader::ImageRGB image;
 
     Material();
 
     void scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &intersection, Ray &ray_out);
+    void emit(Vec3 &color, float u, float v);
 
     void texture(Vec3 &color, float u, float v);
     void sphere_texture(Vec3 &color, const float phi, const float theta);

@@ -17,7 +17,7 @@
 
 #include "Functions.h"
 
-#define MAXBOUNCES 5
+#define MAXBOUNCES 6
 #define NB_ECH 10
 
 enum LightType {
@@ -153,6 +153,7 @@ public:
 
         Vec3 normal;
         Vec3 intersection;
+        Vec3 emission;
         Vec3 L, R, V;
 
        
@@ -224,10 +225,11 @@ public:
         }
         Vec3 newColor;
         Ray newRay;
+        material.emit(emission, 0.f, 0.f);
         material.scatter(ray, normal, intersection, newRay);
         newColor = rayTraceRecursive(newRay, NRemainingBounces-1);
         newColor = Vec3::compProduct(newColor, material.diffuse_material);
-        return color + newColor;
+        return color + newColor + emission;
     }
 
 
@@ -325,17 +327,34 @@ public:
         squares.clear();
         lights.clear();
 
-        {
-            lights.resize( lights.size() + 1 );
-            Light & light = lights[lights.size() - 1];
-            // base settings : 0.0    1.5      0.0
-            light.pos = Vec3( 0.0, 1.5, 0.0 );
-            light.radius = 1.5f;
-            light.powerCorrection = 2.f;
-            light.type = LightType_Spherical;
-            light.material = Vec3(1,1,1);
-            light.isInCamSpace = false;
+        // {
+        //     lights.resize( lights.size() + 1 );
+        //     Light & light = lights[lights.size() - 1];
+        //     // base settings : 0.0    1.5      0.0
+        //     light.pos = Vec3( 0.0, 1.5, 0.0 );
+        //     light.radius = 1.5f;
+        //     light.powerCorrection = 2.f;
+        //     light.type = LightType_Spherical;
+        //     light.material = Vec3(1,1,1);
+        //     light.isInCamSpace = false;
+        // }
+
+        { //Ceiling
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_x(90);
+            s.translate(Vec3(0., -0.00001, 0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_color = Vec3(MAXBOUNCES);
         }
+
 
         { //Back Wall
             squares.resize( squares.size() + 1 );

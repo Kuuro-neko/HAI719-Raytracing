@@ -9,6 +9,19 @@ Material::Material() {
     ambient_material = Vec3(0., 0., 0.);
 }
 
+void Material::emit(Vec3 &color, float u, float v) {
+    if (!emissive) {
+        color = Vec3(0., 0., 0.);
+        return;
+    }
+    if (texture_type == Texture_None) {
+        color = light_color;
+    } else {
+        texture(color, u, v);
+        color = Vec3::compProduct(color, light_color);
+    }
+}
+
 void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &intersection, Ray &ray_out) {
     float ri, cos_theta, sin_theta;
     bool cannot_refract;

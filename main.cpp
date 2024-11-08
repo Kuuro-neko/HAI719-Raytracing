@@ -207,7 +207,7 @@ void ray_trace_from_camera() {
     matrixUtilities.updated();
     matrixUtilities.updateMatrices();
     
-    unsigned int nsamples = 25;
+    unsigned int nsamples = 100;
 
     for (int y = 0; y < h; y++) {
         threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
