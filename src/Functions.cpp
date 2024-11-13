@@ -26,15 +26,6 @@ Vec3 random_unit_vector() {
     return p;
 }
 
-Vec3 random_on_hemisphere(const Vec3 &normal) {
-    Vec3 random_vector = random_unit_vector();
-    if (Vec3::dot(random_vector, normal) > 0.0) {
-        return random_vector;
-    } else {
-        return random_vector*-1.;
-    }
-}
-
 float min(float a, float b) {
     return a < b ? a : b;
 }

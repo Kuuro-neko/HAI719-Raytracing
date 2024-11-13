@@ -38,6 +38,7 @@ struct Material {
 
     bool emissive;
     Vec3 light_color;
+    float light_intensity;
 
     ppmLoader::ImageRGB image;
 

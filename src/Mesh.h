@@ -165,6 +165,12 @@ public:
         apply_transformation_matrix( scale_matrix );
     }
 
+    void rotate( Vec3 const & angles ){
+        rotate_x( angles[0] );
+        rotate_y( angles[1] );
+        rotate_z( angles[2] );
+    }
+
     void rotate_x ( float angle ){
         float x_angle = angle * M_PI / 180.;
         Mat3 x_rotation(1., 0., 0.,

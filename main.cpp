@@ -59,6 +59,7 @@ static bool fullScreen = false;
 
 std::vector<Scene> scenes;
 unsigned int selected_scene;
+unsigned int nsamples = 20;
 
 MatrixUtilities matrixUtilities;
 
@@ -77,6 +78,7 @@ void printUsage () {
          << " r: Ray trace the scene" << endl
          << " u: Recompute the random scenes" << endl
          << " f: Toggle full screen mode" << endl
+         << " S/s: Increase/decrease the number of samples per pixel" << endl
          << " +/-: Change scene" << endl
          << " <drag>+<left button>: rotate model" << endl
          << " <drag>+<right button>: move model" << endl
@@ -167,7 +169,7 @@ void idle () {
         FPS = counter;
         counter = 0;
         static char winTitle [64];
-        sprintf (winTitle, "Raytracer - FPS: %d", FPS);
+        sprintf (winTitle, "Raytracer - FPS: %d - Ray samples: %d", FPS, nsamples);
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
     }
@@ -200,14 +202,12 @@ void ray_trace_from_camera() {
 
     unsigned int nb_threads = std::thread::hardware_concurrency();
 
-    std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads" << std::endl;
+    std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads and " << nsamples << " samples per pixel" << std::endl;
     clock_t start = clock();
     
     camera.apply();
     matrixUtilities.updated();
     matrixUtilities.updateMatrices();
-    
-    unsigned int nsamples = 100;
 
     for (int y = 0; y < h; y++) {
         threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
@@ -260,7 +260,36 @@ void key (unsigned char keyPressed, int x, int y) {
         else
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
         break;
-
+    case 'S':
+        if (nsamples < 5) {
+            nsamples += 1;
+        } else if (nsamples < 25) {
+            nsamples += 5;
+        } else if (nsamples < 100) {
+            nsamples += 25;
+        } else if (nsamples < 250) {
+            nsamples += 50;
+        } else if (nsamples < 1000) {
+            nsamples += 250;
+        } else {
+            nsamples += 500;
+        }
+        break;
+    case 's':
+        if (nsamples > 1000) {
+            nsamples -= 500;
+        } else if (nsamples > 250) {
+            nsamples -= 250;
+        } else if (nsamples > 100) {
+            nsamples -= 50;
+        } else if (nsamples > 25) {
+            nsamples -= 25;
+        } else if (nsamples > 5) {
+            nsamples -= 5;
+        } else if (nsamples > 1) {
+            nsamples -= 1;
+        }
+        break;
     case 'r':
         camera.apply();
         rays.clear();
@@ -268,7 +297,7 @@ void key (unsigned char keyPressed, int x, int y) {
         
         break;
     case 'u':
-        scenes[selected_scene].setup_random_spheres();
+        scenes[5].setup_random_spheres();
         break;
     case '-':
         selected_scene = (selected_scene + scenes.size() - 1) % scenes.size();

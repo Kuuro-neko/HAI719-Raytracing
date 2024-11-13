@@ -16,6 +16,7 @@
 #include <GL/glut.h>
 
 #include "Functions.h"
+#include "imageLoader.h"
 
 #define MAXBOUNCES 6
 #define NB_ECH 10
@@ -60,6 +61,7 @@ class Scene {
     std::vector< Sphere > spheres;
     std::vector< Square > squares;
     std::vector< Light > lights;
+    ppmLoader::ImageRGB skybox;
 
 public:
 
@@ -81,6 +83,98 @@ public:
             Square const & square = squares[It];
             square.draw();
         }
+    }
+
+    void addBox(std::vector<Material> const & materials, bool faces[6], Vec3 const & pos, Vec3 const rotation, float const size = 1.f, bool facing_out = true) {
+        Vec3 base_bottom_left = Vec3(-size/2.);
+        Vec3 base_right_vector = Vec3(size, 0., 0.);
+        Vec3 base_up_vector = Vec3(0., 0., size);
+        int nfaces = 0;
+        if (faces[0]) { // bottom
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            nfaces++;
+        }
+        if (faces[1]) { // top
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            square.rotate_x(180.);
+            nfaces++;
+        }
+        if (faces[2]){ // front
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            square.rotate_x(90.);
+            nfaces++;
+        }
+        if (faces[3]) { // back
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            square.rotate_x(-90.);
+            nfaces++;
+        }
+        if (faces[4]) { // left
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            square.rotate_x(90.);
+            square.rotate_y(90.);
+            nfaces++;
+        }
+        if (faces[5]) { // right
+            squares.resize(squares.size() + 1);
+            Square & square = squares.back();
+            square.setQuad(base_bottom_left, base_right_vector, base_up_vector, 1., 1.);
+            square.rotate_x(90.);
+            square.rotate_y(-90.);
+            nfaces++;
+        }
+        for (int i = squares.size() - nfaces; i < squares.size(); i++) {
+            squares[i].translate(pos);
+            squares[i].build_arrays();
+            if (!facing_out) squares[i].m_normal *= -1.;
+            squares[i].material = materials[i - squares.size() + nfaces];
+        }
+    }
+
+
+    Vec3 skyboxTexture(Vec3 direction, int NRemainingBounces) {
+        if (skybox.w < 1 || skybox.h < 1) {
+            float a = 0.5*(direction[1] + 1.0);
+            return (1.0-a)*Vec3(1.0, 1.0, 1.0) + a*Vec3(0.5, 0.7, 1.0) * (NRemainingBounces+1);
+        }
+        float u = 0.5 + atan2(direction[2], direction[0]) / (2 * M_PI);
+        float v = 0.5 - asin(direction[1]) / M_PI;
+        int x = u * skybox.w;
+        int y = v * skybox.h;
+        int index = y * skybox.w + x;
+        // // average all the adjacent pixels (to avoid aliasing), compute the adjacent indices modulo the image size to handle the borders
+        // Vec3 color = Vec3(0.);
+        // int adjIndex;
+        // for (int i = -1; i <= 1; i++) {
+        //     for (int j = -1; j <= 1; j++) {
+        //         adjIndex = (x + i + skybox.w) % skybox.w + (y + j + skybox.h) % skybox.h * skybox.w;
+        //         color += Vec3(skybox.data[adjIndex].r/255., skybox.data[adjIndex].g/255., skybox.data[adjIndex].b/255.);
+        //     }
+        // }
+        // color /= 9.;
+        // color = Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.);
+        return Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.) * NRemainingBounces;
+    }
+
+    void loadSkybox(const std::string &filename) {
+        ppmLoader::load_ppm(skybox, filename);
+    }
+
+    void clear() {
+        meshes.clear();
+        spheres.clear();
+        squares.clear();
+        lights.clear();
     }
 
     void setResult(RaySceneIntersection &result, int typeOfIntersectedObject, int objectIndex, float t) {
@@ -163,12 +257,14 @@ public:
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
                 normal = raySceneIntersection.raySphereIntersection.normal;
                 material.sphere_texture(material.diffuse_material, raySceneIntersection.raySphereIntersection.phi, raySceneIntersection.raySphereIntersection.theta);
+                material.emit(emission, raySceneIntersection.raySphereIntersection.phi / (2 * M_PI), raySceneIntersection.raySphereIntersection.theta / M_PI);
                 break;
             case 2: // Square
                 material = squares[raySceneIntersection.objectIndex].material;
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
                 normal = raySceneIntersection.raySquareIntersection.normal;
                 material.texture(material.diffuse_material, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v);
+                material.emit(emission, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v);
                 break;
             case 3: // Mesh
                 material = meshes[raySceneIntersection.objectIndex].material;
@@ -185,17 +281,15 @@ public:
                 break;
             case 0: // No intersection
             default:
-                float a = 0.5*(ray.direction()[1] + 1.0);
-                return (1.0-a)*Vec3(1.0, 1.0, 1.0) + a*Vec3(0.5, 0.7, 1.0) * NRemainingBounces;
+                return skyboxTexture(ray.direction(), NRemainingBounces);
                 break;
         }
         for (int i = 0; i < lights.size(); i++) {
             L = lights[i].pos - intersection;
             L.normalize();
             float dotLN = Vec3::dot(L, normal);
+
             // Diffuse
-            
-            
             color += Vec3::compProduct(lights[0].material, material.diffuse_material) * max(0.0, dotLN) * (1. - material.transparency);
 
             // Specular
@@ -211,10 +305,11 @@ public:
             int nb_ech = NB_ECH;
             float delta = lights[i].radius/2.;
             for (int j = 0; j < nb_ech; j++) {
-                float x = random_float(-delta, delta);
-                float y = 0.0;
-                float z = random_float(-delta, delta);
-                random_light.pos = lights[i].pos + Vec3(x, y, z);
+                // float x = random_float(-delta, delta);
+                // float y = 0.0;
+                // float z = random_float(-delta, delta);
+                // random_light.pos = lights[i].pos + Vec3(x, y, z);
+                random_light.pos = lights[i].pos + random_unit_vector() * delta;
                 L = random_light.pos - intersection;
                 L.normalize();
                 float tLight = (random_light.pos - intersection).length();
@@ -225,7 +320,6 @@ public:
         }
         Vec3 newColor;
         Ray newRay;
-        material.emit(emission, 0.f, 0.f);
         material.scatter(ray, normal, intersection, newRay);
         newColor = rayTraceRecursive(newRay, NRemainingBounces-1);
         newColor = Vec3::compProduct(newColor, material.diffuse_material);
@@ -242,11 +336,8 @@ public:
     }
 
     void setup_single_sphere() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
-
+        clear();
+        loadSkybox("img/textures/space.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -260,33 +351,18 @@ public:
         {
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(-1. , 0. , 0.);
+            s.m_center = Vec3(0. , 0. , 0.);
             s.m_radius = 1.f;
             s.build_arrays();
             s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 1.,0.,0. );
-            s.material.specular_material = Vec3( 0.2,0.2,0.2 );
-            s.material.shininess = 20;
-        }
-        {
-            spheres.resize( spheres.size() + 1 );
-            Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(1. , 0. , 0.);
-            s.m_radius = 0.5f;
-            s.build_arrays();
-            s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 0.,1.,0. );
+            s.material.diffuse_material = Vec3( 1. );
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
         }
     }
 
     void setup_single_square() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
-
+        clear();
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -322,10 +398,8 @@ public:
     }
 
     void setup_cornell_box(){
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
+        skybox = ppmLoader::ImageRGB();
 
         // {
         //     lights.resize( lights.size() + 1 );
@@ -339,22 +413,56 @@ public:
         //     light.isInCamSpace = false;
         // }
 
-        { //Ceiling
-            squares.resize( squares.size() + 1 );
-            Square & s = squares[squares.size() - 1];
-            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(0.5, 0.5, 1.));
-            s.rotate_x(90);
-            s.translate(Vec3(0., -0.00001, 0.));
-            s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
-            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
-            s.material.shininess = 16;
-            s.material.emissive = true;
-            s.material.light_color = Vec3(MAXBOUNCES);
-        }
+        // { //Ceiling square emissive light
+        //     squares.resize( squares.size() + 1 );
+        //     Square & s = squares[squares.size() - 1];
+        //     s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+        //     s.translate(Vec3(0., 0., -2.));
+        //     s.scale(Vec3(0.5, 0.5, 1.));
+        //     s.rotate_x(90);
+        //     s.translate(Vec3(0., -0.00001, 0.));
+        //     s.build_arrays();
+        //     s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+        //     s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+        //     s.material.shininess = 16;
+        //     s.material.emissive = true;
+        //     s.material.light_color = Vec3(1.);
+        //     s.material.light_intensity = 30.;
+        // }
 
+        // { //Light Sphere
+        //     spheres.resize( spheres.size() + 1 );
+        //     Sphere & s = spheres[spheres.size() - 1];
+        //     s.m_center = Vec3(-0.5, 1.2, -1.5);
+        //     s.m_radius = 0.25f;
+        //     s.build_arrays();
+        //     s.material.type = Material_Diffuse_Blinn_Phong; 
+        //     s.material.diffuse_material = Vec3( 0.7 );
+        //     s.material.specular_material = Vec3(  1.,1.,1. );
+        //     s.material.shininess = 16;
+        //     s.material.transparency = 0.;
+        //     s.material.index_medium = 0.;
+        //     s.material.emissive = true;
+        //     s.material.light_color = Vec3(1.);
+        //     s.material.light_intensity = 50.;
+        // }
+
+        std::vector<Material> materials;
+        Material white = Material();
+        white.diffuse_material = Vec3(0.9);
+        white.specular_material = Vec3(1.);
+        white.shininess = 16;
+        Material emissive = Material();
+        emissive.emissive = true;
+        emissive.light_color = Vec3(1.);
+        emissive.light_intensity = 30.;
+        materials.push_back(emissive);
+        for (int i = 0; i < 4; i++) {
+            materials.push_back(white);
+        }
+        Vec3 pos = Vec3(0., 1.95, 0.);
+        bool faces[6] = {true, false, true, true, true, true};
+        addBox(materials, faces, pos, Vec3(45.), 1., false);
 
         { //Back Wall
             squares.resize( squares.size() + 1 );
@@ -471,14 +579,25 @@ public:
             s.material.index_medium = 0.;
         }
 
+        // {
+        //     meshes.resize( meshes.size() + 1 );
+        //     Mesh & m = meshes[meshes.size() - 1];
+        //     m.loadOFF("mesh/tripod.off");
+        //     m.translate(Vec3(0., 0., 0.));
+        //     m.build_arrays();
+        //     m.material.type = Material_Glass;
+        //     m.material.index_medium = 1.333;
+        //     m.material.transparency = 0.9;
+        //     m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+        //     m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
+        //     m.material.shininess = 32;
+        // }
+    
     }
 
     void setup_rt_in_a_weekend() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
-
+        clear();
+        loadSkybox("img/textures/sky.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -533,6 +652,8 @@ public:
             s.material.shininess = 20;
             s.material.texture_type = Texture_Image;
             s.material.load_texture("img/sphereTextures/s2.ppm");
+            s.material.emissive = true;
+            s.material.light_intensity = 15.;
         }
         { // Mirror Sphere
             spheres.resize( spheres.size() + 1 );
@@ -565,10 +686,8 @@ public:
     }
 
     void setup_mesh() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
+        loadSkybox("img/textures/space.ppm");
 
         {
             lights.resize( lights.size() + 1 );
@@ -681,10 +800,7 @@ public:
     }
 
     void setup_random_spheres() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
         int nSpheres = 79;
         {
             lights.resize( lights.size() + 1 );
@@ -778,10 +894,7 @@ public:
     }
 
     void setup_debug_refraction() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -855,10 +968,7 @@ public:
 
     // Starting to thing i may have too many scenes !
     void setup_flamingo() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -935,10 +1045,7 @@ public:
     }
 
     void setup_raccoon() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -1061,10 +1168,8 @@ public:
     }
 
     void setup_flamingo_pond() {
-        meshes.clear();
-        spheres.clear();
-        squares.clear();
-        lights.clear();
+        clear();
+        loadSkybox("img/textures/sky.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];

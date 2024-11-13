@@ -18,8 +18,8 @@ void Material::emit(Vec3 &color, float u, float v) {
         color = light_color;
     } else {
         texture(color, u, v);
-        color = Vec3::compProduct(color, light_color);
     }
+    color *= light_intensity;
 }
 
 void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &intersection, Ray &ray_out) {
@@ -32,16 +32,16 @@ void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &inters
                 ri = 1./index_medium;
             } else {
                 ri = index_medium;
-            }/*
+            }
             cos_theta = min(Vec3::dot(ray_in.direction()*-1., normal), 1.0);
             sin_theta = sqrt(1. - cos_theta*cos_theta);
-            cannot_refract = ri * sin_theta > 1.0;
+            cannot_refract = (ri * sin_theta)-0.6 > 1.0;
             if (cannot_refract || reflectance(cos_theta, ri) > random_float()) {
                 direction = reflect(ray_in.direction(), normal);
             } else {
                 direction = refract(ray_in.direction(), normal, ri);
-            }*/
-            direction = refract(ray_in.direction(), normal, ri);
+            }
+            //direction = refract(ray_in.direction(), normal, ri);
             break;
         case Material_Diffuse_Blinn_Phong:
             direction = normal + random_unit_vector();
@@ -50,7 +50,7 @@ void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &inters
             }
             break;
         case Material_Mirror:
-            direction = reflect(ray_in.direction(), normal);
+            direction = reflect(ray_in.direction(), normal); //+ random_unit_vector() * 0.01; fuzziness
             break;
         default:
             break;
