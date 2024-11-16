@@ -6,6 +6,7 @@
 #include <cmath>
 #include "math.h"
 #include "Functions.h"
+#include "AABB.h"
 
 struct RaySphereIntersection{
     bool intersectionExists;
@@ -81,11 +82,13 @@ public:
                 triangles_array.push_back( vertexuV );
             }
         }
+        computeAABB();
     }
 
 
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
+        if (!aabb.intersects(ray)) return intersection;
         //TODO calcul l'intersection rayon sphere
         Vec3 o = ray.origin();
         Vec3 d = ray.direction();

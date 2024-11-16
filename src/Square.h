@@ -26,6 +26,7 @@ public:
     Square(Vec3 const & bottomLeft , Vec3 const & rightVector , Vec3 const & upVector , float width=1. , float height=1. ,
            float uMin = 0.f , float uMax = 1.f , float vMin = 0.f , float vMax = 1.f) : Mesh() {
         setQuad(bottomLeft, rightVector, upVector, width, height, uMin, uMax, vMin, vMax);
+        computeAABB();
     }
 
     void setQuad( Vec3 const & bottomLeft , Vec3 const & rightVector , Vec3 const & upVector , float width=1. , float height=1. ,
@@ -58,11 +59,11 @@ public:
         triangles[1][1] = 2;
         triangles[1][2] = 3;
 
-
     }
 
     RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
+        if(!aabb.intersects(ray)) return intersection;
 
         Vec3 m_bottom_left = vertices[0].position;
         Vec3 m_right_vector = vertices[1].position - vertices[0].position;
