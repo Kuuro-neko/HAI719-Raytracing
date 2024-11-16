@@ -12,7 +12,10 @@ class AABB {
         Vec3 p0;
         Vec3 p1;
 
-    AABB() {}
+    AABB() {
+        p0 = Vec3(FLT_MAX);
+        p1 = Vec3(-FLT_MAX);
+    }
 
     AABB(const Vec3 &a, const Vec3 &b) {
         for (int i = 0; i < 3; i++) {
@@ -26,12 +29,19 @@ class AABB {
         }
     }
 
+    void extend(const AABB &aabb) {
+        for (int i = 0; i < 3; i++) {
+            p0[i] = min(p0[i], aabb.p0[i]);
+            p1[i] = max(p1[i], aabb.p1[i]);
+        }
+    }
+
     bool intersects(const Ray &ray, float tmin=EPSILON, float tmax=FLT_MAX) const {
         for (int axis = 0; axis < 3; axis++) {
             const double adinv = 1.0 / ray.direction()[axis];
 
-            auto t0 = (p0[axis] - ray.origin()[axis]) * adinv;
-            auto t1 = (p1[axis] - ray.origin()[axis]) * adinv;
+            float t0 = (p0[axis] - ray.origin()[axis]) * adinv;
+            float t1 = (p1[axis] - ray.origin()[axis]) * adinv;
 
             if (t0 < t1) {
                 if (t0 > tmin) tmin = t0;
