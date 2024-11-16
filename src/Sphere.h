@@ -15,6 +15,8 @@ struct RaySphereIntersection{
     Vec3 intersection;
     Vec3 secondintersection;
     Vec3 normal;
+
+    RaySphereIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
 static
@@ -82,13 +84,12 @@ public:
                 triangles_array.push_back( vertexuV );
             }
         }
-        computeAABB();
+        computeAABBFromPosArray();
     }
 
 
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
-        if (!aabb.intersects(ray)) return intersection;
         //TODO calcul l'intersection rayon sphere
         Vec3 o = ray.origin();
         Vec3 d = ray.direction();

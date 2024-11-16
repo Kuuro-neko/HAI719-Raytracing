@@ -139,6 +139,23 @@ public:
                 if (vertices[i].position[axis] > p1[axis]) p1[axis] = vertices[i].position[axis];
             }
         }
+        p0 -= Vec3(EPSILON);
+        p1 += Vec3(EPSILON);
+        aabb = AABB(p0, p1);
+    }
+
+    void computeAABBFromPosArray() {
+        Vec3 p0, p1;
+        p0 = Vec3(FLT_MAX);
+        p1 = Vec3(FLT_MIN);
+        for (int i = 0; i < positions_array.size(); i += 3) {
+            for (int axis = 0; axis < 3; axis++) {
+                if (positions_array[i + axis] < p0[axis]) p0[axis] = positions_array[i + axis];
+                if (positions_array[i + axis] > p1[axis]) p1[axis] = positions_array[i + axis];
+            }
+        }
+        p0 -= Vec3(EPSILON);
+        p1 += Vec3(EPSILON);
         aabb = AABB(p0, p1);
     }
 
