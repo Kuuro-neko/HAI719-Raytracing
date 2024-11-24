@@ -105,3 +105,27 @@ void Material::sphere_texture(Vec3 &color, const float phi, const float theta) {
 void Material::set_texture(ppmLoader::ImageRGB *img) {
     image = img;
 }
+
+void Material::set_normals(ppmLoader::ImageRGB *img) {
+    normals = img;
+    has_normal_map = true;
+}
+
+void Material::get_normal(Vec3& normal, float u, float v, Vec3 &T, Vec3 &B) {
+    if (!has_normal_map) {
+        return;
+    }
+    int x, y, index;
+    u = clamp(u, 0., 1.);
+    v = 1. - clamp(v, 0., 1.);
+    x = int(u * (normals->w - 1));
+    y = int(v * (normals->h - 1));
+    index = y * normals->w + x;
+    // normal = Vec3(normals->data[index].r, normals->data[index].g, normals->data[index].b);
+    // Map the normal values from [0, 255] to [-1, 1]
+    Vec3 normal_from_map = Vec3(normals->data[index].r/127.5 - 1., normals->data[index].g/127.5 - 1., normals->data[index].b/127.5 - 1.);
+    
+    normal = normal_from_map[0] * T + normal_from_map[1] * B + normal_from_map[2] * normal;
+    
+    normal.normalize();
+}

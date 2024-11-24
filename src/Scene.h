@@ -62,6 +62,7 @@ class Scene {
     std::vector< Square > squares;
     std::vector< Light > lights;
     std::vector< ppmLoader::ImageRGB > textures;
+    std::vector< ppmLoader::ImageRGB > normals;
     ppmLoader::ImageRGB skybox;
 
 public:
@@ -171,10 +172,18 @@ public:
         ppmLoader::load_ppm(skybox, filename);
     }
 
-    void load_texture(const std::string &filename) {
+    int load_texture(const std::string &filename) {
         ppmLoader::ImageRGB img;
         ppmLoader::load_ppm(img, filename);
         textures.push_back(img);
+        return textures.size() - 1;
+    }
+
+    int load_normal_map(const std::string &filename) {
+        ppmLoader::ImageRGB img;
+        ppmLoader::load_ppm(img, filename);
+        normals.push_back(img);
+        return normals.size() - 1;
     }
 
     void clear() {
@@ -183,6 +192,7 @@ public:
         squares.clear();
         lights.clear();
         textures.clear();
+        normals.clear();
     }
 
     void setResult(RaySceneIntersection &result, int typeOfIntersectedObject, int objectIndex, float t) {
@@ -265,6 +275,7 @@ public:
                 intersection = raySceneIntersection.raySphereIntersection.intersection;
                 normal = raySceneIntersection.raySphereIntersection.normal;
                 material.sphere_texture(material.diffuse_material, raySceneIntersection.raySphereIntersection.phi, raySceneIntersection.raySphereIntersection.theta);
+                //material.get_normal(normal, raySceneIntersection.raySphereIntersection.phi / (2 * M_PI), raySceneIntersection.raySphereIntersection.theta / M_PI);
                 material.emit(emission, raySceneIntersection.raySphereIntersection.phi / (2 * M_PI), raySceneIntersection.raySphereIntersection.theta / M_PI);
                 break;
             case 2: // Square
@@ -272,6 +283,7 @@ public:
                 intersection = raySceneIntersection.raySquareIntersection.intersection;
                 normal = raySceneIntersection.raySquareIntersection.normal;
                 material.texture(material.diffuse_material, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v);
+                material.get_normal(normal, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v, squares[raySceneIntersection.objectIndex].m_right_vector, squares[raySceneIntersection.objectIndex].m_up_vector);
                 material.emit(emission, raySceneIntersection.raySquareIntersection.u, raySceneIntersection.raySquareIntersection.v);
                 break;
             case 3: // Mesh
@@ -304,7 +316,7 @@ public:
             R = 2.*(dotLN)*normal-L;
             R.normalize();
             V = ray.direction() * -1.;
-            color += Vec3::compProduct(lights[0].material, material.specular_material)  * pow(max(0.0, Vec3::dot(R, V)),material.shininess);
+            //color += Vec3::compProduct(lights[0].material, material.specular_material)  * pow(max(0.0, Vec3::dot(R, V)),material.shininess);
         
             // Ombres douces
             Light random_light;
@@ -408,6 +420,10 @@ public:
     void setup_cornell_box(){
         clear();
         skybox = ppmLoader::ImageRGB();
+        int brickwall_texture = load_texture("img/planeTextures/brickwall.ppm");
+        int brickwall_normal = load_normal_map("img/normalMaps/brickwall_normal.ppm");
+        int floor_normal = load_normal_map("img/normalMaps/n1.ppm");
+        int sand_texture = load_texture("img/planeTextures/sand.ppm");
 
         // {
         //     lights.resize( lights.size() + 1 );
@@ -482,9 +498,9 @@ public:
             s.material.diffuse_material = Vec3( 1.,1.,1. );
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
-            load_texture("img/planeTextures/brickwall.ppm");
             s.material.texture_type = Texture_Image;
-            s.material.set_texture(&textures.back());
+            s.material.set_texture(&textures[brickwall_texture]);
+            s.material.set_normals(&normals[brickwall_normal]);
         }
 
         { //Left Wall
@@ -499,6 +515,9 @@ public:
             s.material.diffuse_material = Vec3( 1.,0.,0. );
             s.material.specular_material = Vec3( 1.,0.,0. );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.set_texture(&textures[brickwall_texture]);
+            s.material.set_normals(&normals[brickwall_normal]);
         }
 
         { //Right Wall
@@ -512,6 +531,9 @@ public:
             s.material.diffuse_material = Vec3( 0.0,1.0,0.0 );
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.set_texture(&textures[brickwall_texture]);
+            s.material.set_normals(&normals[brickwall_normal]);
         }
 
         { //Floor
@@ -522,13 +544,12 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 246./255., 204./255., 162./255. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
-            s.material.shininess = 16;
-            s.material.texture_type = Texture_Checkerboard;
-            s.material.checkerboard_color1 = Vec3(1.);
-            s.material.checkerboard_color2 = Vec3(0.);
-            s.material.checkerboard_scale = 8.;
+            s.material.shininess = 1;
+            //s.material.texture_type = Texture_Image;
+            //s.material.set_texture(&textures[sand_texture]);
+            s.material.set_normals(&normals[floor_normal]);
         }
 
         { //Ceiling
@@ -542,6 +563,10 @@ public:
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Checkerboard;
+            s.material.checkerboard_color1 = Vec3(0.95);
+            s.material.checkerboard_color2 = Vec3(0.5);
+            s.material.checkerboard_scale = 8.;
         }
        
        
@@ -557,6 +582,9 @@ public:
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.set_texture(&textures[brickwall_texture]);
+            s.material.set_normals(&normals[brickwall_normal]);
         }
 
 

@@ -41,6 +41,8 @@ struct Material {
     float light_intensity;
 
     ppmLoader::ImageRGB *image;
+    ppmLoader::ImageRGB *normals;
+    bool has_normal_map = false;
 
     Material();
 
@@ -50,6 +52,8 @@ struct Material {
     void texture(Vec3 &color, float u, float v);
     void sphere_texture(Vec3 &color, const float phi, const float theta);
     void set_texture(ppmLoader::ImageRGB *img);
+    void set_normals(ppmLoader::ImageRGB *img);
+    void get_normal(Vec3& normal, float u, float v, Vec3 &T, Vec3 &B);
 };
 
 #endif // MATERIAL_H
