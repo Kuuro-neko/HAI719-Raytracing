@@ -61,6 +61,7 @@ class Scene {
     std::vector< Sphere > spheres;
     std::vector< Square > squares;
     std::vector< Light > lights;
+    std::vector< ppmLoader::ImageRGB > textures;
     ppmLoader::ImageRGB skybox;
 
 public:
@@ -170,11 +171,18 @@ public:
         ppmLoader::load_ppm(skybox, filename);
     }
 
+    void load_texture(const std::string &filename) {
+        ppmLoader::ImageRGB img;
+        ppmLoader::load_ppm(img, filename);
+        textures.push_back(img);
+    }
+
     void clear() {
         meshes.clear();
         spheres.clear();
         squares.clear();
         lights.clear();
+        textures.clear();
     }
 
     void setResult(RaySceneIntersection &result, int typeOfIntersectedObject, int objectIndex, float t) {
@@ -474,6 +482,9 @@ public:
             s.material.diffuse_material = Vec3( 1.,1.,1. );
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
+            load_texture("img/planeTextures/brickwall.ppm");
+            s.material.texture_type = Texture_Image;
+            s.material.set_texture(&textures.back());
         }
 
         { //Left Wall
@@ -651,7 +662,8 @@ public:
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
             s.material.texture_type = Texture_Image;
-            s.material.load_texture("img/sphereTextures/s2.ppm");
+            load_texture("img/sphereTextures/s2.ppm");
+            s.material.set_texture(&textures.back());
             s.material.emissive = true;
             s.material.light_intensity = 15.;
         }
@@ -1135,7 +1147,8 @@ public:
             s.material.specular_material = Vec3( 0.8 );
             s.material.shininess = 32;
             s.material.texture_type = Texture_Image;
-            s.material.load_texture("img/sphereTextures/s2.ppm");
+            load_texture("img/sphereTextures/s2.ppm");
+            s.material.set_texture(&textures.back());
         }
         { // Wind orb
             spheres.resize( spheres.size() + 1 );
@@ -1149,7 +1162,8 @@ public:
             s.material.shininess = 32;
             s.material.transparency = 0.4;
             s.material.texture_type = Texture_Image;
-            s.material.load_texture("img/sphereTextures/s4.ppm");
+            load_texture("img/sphereTextures/s4.ppm");
+            s.material.set_texture(&textures.back());
         }
         { // Water orb
             spheres.resize( spheres.size() + 1 );
@@ -1163,7 +1177,8 @@ public:
             s.material.shininess = 32;
             s.material.transparency = 0.8;
             s.material.texture_type = Texture_Image;
-            s.material.load_texture("img/sphereTextures/s7.ppm");
+            load_texture("img/sphereTextures/s7.ppm");
+            s.material.set_texture(&textures.back());
         }
     }
 

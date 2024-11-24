@@ -40,7 +40,7 @@ struct Material {
     Vec3 light_color;
     float light_intensity;
 
-    ppmLoader::ImageRGB image;
+    ppmLoader::ImageRGB *image;
 
     Material();
 
@@ -49,7 +49,7 @@ struct Material {
 
     void texture(Vec3 &color, float u, float v);
     void sphere_texture(Vec3 &color, const float phi, const float theta);
-    void load_texture(const std::string &filename);
+    void set_texture(ppmLoader::ImageRGB *img);
 };
 
 #endif // MATERIAL_H

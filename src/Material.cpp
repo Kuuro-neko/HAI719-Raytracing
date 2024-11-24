@@ -71,7 +71,7 @@ void Material::texture(Vec3 &color, float u, float v) {
             }
             break;
         case Texture_Image:
-            if (image.w < 1 || image.h < 1) {
+            if (image->w < 1 || image->h < 1) {
                     if ((int)(u*8.) % 2 == (int)(v*8.) % 2) {
                         color = Vec3(0., 0., 0.);
                     } else {
@@ -81,10 +81,10 @@ void Material::texture(Vec3 &color, float u, float v) {
             }
             u = clamp(u, 0., 1.);
             v = 1. - clamp(v, 0., 1.);
-            x = int(u * image.w);
-            y = int(v * image.h);
-            index = y * image.w + x;
-            color = Vec3(image.data[index].r/255., image.data[index].g/255., image.data[index].b/255.);
+            x = int(u * (image->w - 1));
+            y = int(v * (image->h - 1));
+            index = y * image->w + x;
+            color = Vec3(image->data[index].r/255., image->data[index].g/255., image->data[index].b/255.);
             break;
         default:
             break;
@@ -102,6 +102,6 @@ void Material::sphere_texture(Vec3 &color, const float phi, const float theta) {
     }
 }
 
-void Material::load_texture(const std::string &filename) {
-    ppmLoader::load_ppm(image, filename);
+void Material::set_texture(ppmLoader::ImageRGB *img) {
+    image = img;
 }
