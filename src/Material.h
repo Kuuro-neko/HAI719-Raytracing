@@ -34,7 +34,9 @@ struct Material {
     
     Vec3 checkerboard_color1;
     Vec3 checkerboard_color2;
-    float checkerboard_scale;
+
+    float texture_scale_x = 1.;
+    float texture_scale_y = 1.;
 
     bool emissive;
     Vec3 light_color;

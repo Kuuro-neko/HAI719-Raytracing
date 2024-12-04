@@ -64,7 +64,7 @@ void Material::texture(Vec3 &color, float u, float v) {
     int x, y, index;
     switch (texture_type) {
         case Texture_Checkerboard:
-            if ((int)(u*checkerboard_scale) % 2 == (int)(v*checkerboard_scale) % 2) {
+            if ((int)(u*texture_scale_x) % 2 == (int)(v*texture_scale_y) % 2) {
                 color = checkerboard_color1;
             } else {
                 color = checkerboard_color2;
@@ -79,8 +79,10 @@ void Material::texture(Vec3 &color, float u, float v) {
                     }
                 break;
             }
-            u = clamp(u, 0., 1.);
-            v = 1. - clamp(v, 0., 1.);
+            // u = clamp(u, 0., 1.);
+            // v = 1. - clamp(v, 0., 1.);
+            u = fmod(u*texture_scale_x, 1.);
+            v = 1 - fmod(v*texture_scale_y, 1.);
             x = int(u * (image->w - 1));
             y = int(v * (image->h - 1));
             index = y * image->w + x;
@@ -116,8 +118,10 @@ void Material::get_normal(Vec3& normal, float u, float v, Vec3 &T, Vec3 &B) {
         return;
     }
     int x, y, index;
-    u = clamp(u, 0., 1.);
-    v = 1. - clamp(v, 0., 1.);
+    // u = clamp(u, 0., 1.);
+    // v = 1. - clamp(v, 0., 1.);
+    u = fmod(u*texture_scale_x, 1.);
+    v = 1 - fmod(v*texture_scale_y, 1.);
     x = int(u * (normals->w - 1));
     y = int(v * (normals->h - 1));
     index = y * normals->w + x;
