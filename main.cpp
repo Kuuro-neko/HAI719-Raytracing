@@ -360,6 +360,7 @@ void motion (int x, int y) {
 
 void reshape(int w, int h) {
     camera.resize (w, h);
+    scenes[2].setup_cornell_box(float(w)/float(h));
 }
 
 
@@ -392,7 +393,7 @@ int main (int argc, char ** argv) {
     scenes.resize(10);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
-    scenes[2].setup_cornell_box();
+    scenes[2].setup_cornell_box(float(SCREENWIDTH)/float(SCREENHEIGHT));
     scenes[3].setup_mesh();
     scenes[4].setup_rt_in_a_weekend();
     scenes[5].setup_random_spheres();

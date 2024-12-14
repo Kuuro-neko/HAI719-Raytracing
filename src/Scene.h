@@ -417,7 +417,7 @@ public:
         }
     }
 
-    void setup_cornell_box(){
+    void setup_cornell_box(float aspect_ratio) {
         clear();
         skybox = ppmLoader::ImageRGB();
         int brickwall_texture = load_texture("img/planeTextures/brickwall.ppm");
@@ -492,7 +492,7 @@ public:
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.scale(Vec3(2.+16./9., 2., 1.));
+            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1.,1.,1. );
@@ -501,7 +501,7 @@ public:
             s.material.texture_type = Texture_Image;
             s.material.set_texture(&textures[brickwall_texture]);
             s.material.set_normals(&normals[brickwall_normal]);
-            s.material.texture_scale_x = 1.*16./9.;
+            s.material.texture_scale_x = 1.*aspect_ratio;
             s.material.texture_scale_y = 1.;
         }
 
@@ -514,7 +514,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.scale(Vec3(2., 2., 1.));
-            s.translate(Vec3(0, 0., -2.-16./9.));
+            s.translate(Vec3(0, 0., -2.*(-aspect_ratio)));
             s.rotate_y(90);
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1.,0.,0. );
@@ -529,7 +529,7 @@ public:
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -2.-16./9.));
+            s.translate(Vec3(0., 0., -2.*(-aspect_ratio)));
             s.scale(Vec3(2., 2., 1.));
             s.rotate_y(-90);
             s.build_arrays();
@@ -546,7 +546,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2.+16./9., 2., 1.));
+            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
             s.material.diffuse_material = Vec3( 246./255., 204./255., 162./255. );
@@ -562,7 +562,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2.+16./9., 2., 1.));
+            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
             s.rotate_x(90);
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
@@ -571,7 +571,7 @@ public:
             s.material.texture_type = Texture_Checkerboard;
             s.material.checkerboard_color1 = Vec3(0.95);
             s.material.checkerboard_color2 = Vec3(0.5);
-            s.material.texture_scale_x = 8.*16./9.;
+            s.material.texture_scale_x = 8.*aspect_ratio;
             s.material.texture_scale_y = 8.;
         }
        
@@ -582,7 +582,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2.+16./9., 2., 1.));
+            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
             s.rotate_y(180);
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
