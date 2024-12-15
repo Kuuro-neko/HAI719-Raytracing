@@ -513,6 +513,7 @@ public:
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.rotate_x(180);
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0, 0., -2.*(-aspect_ratio)));
             s.rotate_y(90);
@@ -529,6 +530,7 @@ public:
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.rotate_x(180);
             s.translate(Vec3(0., 0., -2.*(-aspect_ratio)));
             s.scale(Vec3(2., 2., 1.));
             s.rotate_y(-90);
@@ -643,6 +645,7 @@ public:
     void setup_rt_in_a_weekend() {
         clear();
         loadSkybox("img/textures/sky.ppm");
+        int sun_texture = load_texture("img/sphereTextures/s2.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -696,8 +699,7 @@ public:
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
             s.material.texture_type = Texture_Image;
-            load_texture("img/sphereTextures/s2.ppm");
-            s.material.set_texture(&textures.back());
+            s.material.set_texture(&textures[sun_texture]);
             s.material.emissive = true;
             s.material.light_intensity = 15.;
         }
@@ -1094,6 +1096,10 @@ s.material.texture_scale_y = 100.;
 
     void setup_raccoon() {
         clear();
+        loadSkybox("img/textures/sky.ppm");
+        int fire_orb_texture = load_texture("img/sphereTextures/s2.ppm");
+        int wind_orb_texture = load_texture("img/sphereTextures/s4.ppm");
+        int water_orb_texture = load_texture("img/sphereTextures/s7.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -1184,8 +1190,7 @@ s.material.texture_scale_y = 16.;
             s.material.specular_material = Vec3( 0.8 );
             s.material.shininess = 32;
             s.material.texture_type = Texture_Image;
-            load_texture("img/sphereTextures/s2.ppm");
-            s.material.set_texture(&textures.back());
+            s.material.set_texture(&textures[fire_orb_texture]);
         }
         { // Wind orb
             spheres.resize( spheres.size() + 1 );
@@ -1199,8 +1204,7 @@ s.material.texture_scale_y = 16.;
             s.material.shininess = 32;
             s.material.transparency = 0.4;
             s.material.texture_type = Texture_Image;
-            load_texture("img/sphereTextures/s4.ppm");
-            s.material.set_texture(&textures.back());
+            s.material.set_texture(&textures[wind_orb_texture]);
         }
         { // Water orb
             spheres.resize( spheres.size() + 1 );
@@ -1214,8 +1218,7 @@ s.material.texture_scale_y = 16.;
             s.material.shininess = 32;
             s.material.transparency = 0.8;
             s.material.texture_type = Texture_Image;
-            load_texture("img/sphereTextures/s7.ppm");
-            s.material.set_texture(&textures.back());
+            s.material.set_texture(&textures[water_orb_texture]);
         }
     }
 
