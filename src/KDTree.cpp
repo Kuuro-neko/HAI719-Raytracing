@@ -9,10 +9,8 @@ public:
     Node *right;
     const std::vector<MeshVertex>& vertices;
 
-    union {
-        std::vector<MeshTriangle> triangles; // Leaf
-        AABBCuttingPlane plane; // Node
-    };
+    std::vector<MeshTriangle> triangles; // Leaf
+    AABBCuttingPlane plane; // Node
 
     Node(const AABB& aabb, const std::vector<MeshVertex>& vertices) : aabb(aabb), vertices(vertices), left(nullptr), right(nullptr) {
 
@@ -26,19 +24,19 @@ public:
     bool leaf() const { return left == nullptr && right == nullptr;}
 
     void addTriangle(const MeshTriangle& triangle) {
+        //std::cout << "Triangle adding, size : " << triangles.size() << std::endl;
         triangles.push_back(triangle);
-        std::cout << "Triangle added, size : " << triangles.size() << std::endl;
     }
 
-    RayTriangleIntersection intersect(const Ray& ray) const {
+    inline RayTriangleIntersection intersect(const Ray& ray) const {
         if (!aabb.intersects(ray)) return RayTriangleIntersection();
         if (leaf()) {
-            std::cout << "Leaf" << std::endl;
+            //std::cout << "Leaf" << std::endl;
             if (triangles.size() == 0) return RayTriangleIntersection();
             RayTriangleIntersection closestIntersection;
             closestIntersection.t = FLT_MAX;
             for (unsigned int i = 0; i < triangles.size(); i++) {
-                std::cout << "Triangle " << i << " : (" << triangles[i][0] << ", " << triangles[i][1] << ", " << triangles[i][2] << ")" << std::endl;
+                //std::cout << "Triangle " << i << " : (" << triangles[i][0] << ", " << triangles[i][1] << ", " << triangles[i][2] << ")" << std::endl;
                 Triangle triangle(vertices[triangles[i][0]].position * TRIANGLE_SCALING,
                                   vertices[triangles[i][1]].position * TRIANGLE_SCALING,
                                   vertices[triangles[i][2]].position * TRIANGLE_SCALING);
@@ -47,6 +45,7 @@ public:
                     closestIntersection = intersection;
                 }
             }
+            //std::cout << "Intersection (from KDTree::Node::intersect): " << closestIntersection.t << std::endl;
             return closestIntersection;
         } else {
             //std::cout << "Node" << std::endl;
@@ -66,6 +65,7 @@ public:
                 //std::cout << "No right" << std::endl;
                 rightIntersection.t = FLT_MAX; // ou une valeur appropriée pour indiquer aucune intersection
             }
+            //std::cout << "Comparing intersections : " << leftIntersection.t << " " << rightIntersection.t << std::endl;
             if (leftIntersection.t < rightIntersection.t) {
                 return leftIntersection;
             } else {
@@ -90,24 +90,23 @@ KDTree::~KDTree() {
 RayTriangleIntersection KDTree::intersect(const Ray& ray) const {
     if (!root) return RayTriangleIntersection();
     if (!aabb.intersects(ray)) return RayTriangleIntersection();
-    return root->intersect(ray);
+    RayTriangleIntersection intersection = root->intersect(ray);
+   // std::cout << "Intersection (from KDTree::intersect): " << intersection.t << std::endl;
+    return intersection;
 }
 
 AABBCuttingPlane KDTree::cut(const std::vector<MeshTriangle>& triangles, int depth) const {
     AABBCuttingPlane plane = AABBCuttingPlane(depth % 3, 0);
 
-    std::vector<float> min_list(triangles.size());
+    std::vector<float> min_list;
     for (unsigned int i = 0; i < triangles.size(); i++) {
-        min_list.push_back( Triangle(vertices[triangles[i][0]].position, vertices[triangles[i][1]].position, vertices[triangles[i][2]].position).getAABB().p0[plane.axis] );
+        AABB aabb = Triangle(vertices[triangles[i][0]].position, vertices[triangles[i][1]].position, vertices[triangles[i][2]].position).getAABB();
+        //std::cout << "AABB : " << aabb.p0 << " " << aabb.p1 << std::endl;
+        min_list.push_back( aabb.p0[plane.axis] );
     }
     // Sort the list
     std::sort(min_list.begin(), min_list.end());
 
-    // print all values from the list
-    for (unsigned int i = 0; i < min_list.size(); i++) {
-       std::cout << min_list[i] << std::endl;
-    }
-    
     // Get the median
     plane.position = min_list[min_list.size() / 2] + EPSILON;
     //std::cout << "Median : " << plane.position << std::endl;
@@ -126,6 +125,9 @@ KDTree::Node* KDTree::buildTree(const std::vector<MeshTriangle>& triangles, cons
 
     int nTris = triangles.size();
     if (nTris <= KDTREE_TRIANGLES_PER_LEAF) {
+        // std::cout << "Building a leaf containing " << nTris << " triangles" << std::endl;
+        // std::cout << "Current ret triangles : " << ret->triangles.size() << std::endl;
+        // std::cout << "Curent ret Plane : " << ret->plane.axis << " " << ret->plane.position << std::endl;
         ADDOBJ;
         return ret;
     }
@@ -144,7 +146,7 @@ KDTree::Node* KDTree::buildTree(const std::vector<MeshTriangle>& triangles, cons
 
     ret->plane = bestPlane;
 
-    std::cout << "Depth : " << depth << " Axis : " << bestPlane.axis << " Position : " << bestPlane.position << "Triangles : " << triangles.size() << std::endl;
+    //std::cout << "Depth : " << depth << " Axis : " << bestPlane.axis << " Position : " << bestPlane.position << "Triangles : " << triangles.size() << std::endl;
     //std::cout << "Left AABB : " << aabbs.first.p0 << " " << aabbs.first.p1 << std::endl;
     //std::cout << "Right AABB : " << aabbs.second.p0 << " " << aabbs.second.p1 << std::endl;
    // std::cout << "Current AABB : " << aabb.p0 << " " << aabb.p1 << std::endl;
@@ -163,7 +165,7 @@ KDTree::Node* KDTree::buildTree(const std::vector<MeshTriangle>& triangles, cons
             rightTriangles.push_back(triangle);
         }
     }
-    std::cout << "Left : " << leftTriangles.size() << " Right : " << rightTriangles.size() << std::endl;
+   // std::cout << "Left : " << leftTriangles.size() << " Right : " << rightTriangles.size() << std::endl;
     ret->left = buildTree(leftTriangles, aabbs.first, depth + 1);
     ret->right = buildTree(rightTriangles, aabbs.second, depth + 1);
 

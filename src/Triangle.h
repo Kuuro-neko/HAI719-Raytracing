@@ -13,6 +13,8 @@ struct RayTriangleIntersection{
     unsigned int tIndex;
     Vec3 intersection;
     Vec3 normal;
+
+    RayTriangleIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
 class Triangle {

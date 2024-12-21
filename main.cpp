@@ -42,7 +42,8 @@ using namespace std;
 #include <thread>
 #include <random>
 
-#define MULTI_THREADED 0
+#define MULTI_THREADED 1
+#define MONORAY 0
 
 // -------------------------------------------
 // OpenGL/GLUT application code.
@@ -208,21 +209,35 @@ void ray_trace_from_camera() {
     matrixUtilities.updated();
     matrixUtilities.updateMatrices();
     clock_t start = clock();
-    if (MULTI_THREADED) {
-        // multi-threading
-        std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads and " << nsamples << " samples per pixel" << std::endl;
-        for (int y = 0; y < h; y++) {
-            threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
-        }
-
-        for (auto& t : threads) {
-            t.join();
+    if (MONORAY) {
+        int x = 220;
+        int y = 270;
+        // send a ray to the x and y position of the final screen, and use the resulting color on all the screen
+        std::cout << "Sending only one ray to the screen position (" << x << ", " << y << ") and using the resulting color for the whole image" << std::endl;
+        Vec3 pos, dir;
+        matrixUtilities.screen_space_to_world_space_ray(x / (float)w, y / (float)h, pos, dir);
+        Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir));
+        gamma_correct(color);
+        for (int i = 0; i < w * h; i++) {
+            image[i] = color;
         }
     } else {
-        // single-threading
-        std::cout << "Ray tracing a " << w << " x " << h << " image using 1 thread and " << nsamples << " samples per pixel" << std::endl;
-        for (int y = 0; y < h; y++) {
-            trace_line(y, w, h, nsamples, image);
+        if (MULTI_THREADED) {
+            // multi-threading
+            std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads and " << nsamples << " samples per pixel" << std::endl;
+            for (int y = 0; y < h; y++) {
+                threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
+            }
+
+            for (auto& t : threads) {
+                t.join();
+            }
+        } else {
+            // single-threading
+            std::cout << "Ray tracing a " << w << " x " << h << " image using 1 thread and " << nsamples << " samples per pixel" << std::endl;
+            for (int y = 0; y < h; y++) {
+                trace_line(y, w, h, nsamples, image);
+            }
         }
     }
 

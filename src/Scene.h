@@ -223,6 +223,8 @@ public:
                 result.raySphereIntersection = intersection;
             } 
         }
+        // std::cout << "\nSphere intersection : " << result.raySphereIntersection.t << std::endl;
+        // std::cout << "Sphere intersection exists : " << result.raySphereIntersection.intersectionExists << std::endl;
         for (int i = 0; i < squares.size(); i++) {
             RaySquareIntersection intersection = squares[i].intersect(ray);
             if (intersection.intersectionExists && intersection.t < result.t && intersection.t >= EPSILON) {
@@ -230,6 +232,8 @@ public:
                 result.raySquareIntersection = intersection;
             } 
         }
+        // std::cout << "Square intersection : " << result.raySquareIntersection.t << std::endl;
+        // std::cout << "Square intersection exists : " << result.raySquareIntersection.intersectionExists << std::endl;
         for (int i = 0; i < meshes.size(); i++) {
             RayTriangleIntersection intersection = meshes[i].intersect(ray);
             if (intersection.intersectionExists && intersection.t < result.t && intersection.t >= EPSILON) {
@@ -237,6 +241,8 @@ public:
                 result.rayMeshIntersection = intersection;  
             } 
         }
+        // std::cout << "Mesh intersection : " << result.rayMeshIntersection.t << "\n" << std::endl;
+        // std::cout << "Mesh intersection exists : " << result.rayMeshIntersection.intersectionExists << std::endl;
         return result;
     }
 
@@ -1097,6 +1103,8 @@ s.material.texture_scale_y = 100.;
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
         }
+
+        meshes[0].computeKDTree();
     }
 
     void setup_raccoon() {
