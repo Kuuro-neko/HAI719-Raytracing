@@ -99,3 +99,15 @@ void Mesh::centerAndScaleToUnit () {
     for  (unsigned int i = 0; i < vertices.size (); i++)
         vertices[i].position = (vertices[i].position - c) / maxD;
 }
+
+void Mesh::computeKDTree() {
+    computeAABB();
+    kdtree = new KDTree(triangles, aabb, vertices);
+}
+
+RayTriangleIntersection Mesh::intersect( Ray const & ray ) const {
+        if( kdtree == NULL ) 
+            return intersectOld( ray );
+        return kdtree->intersect( ray );
+
+    }

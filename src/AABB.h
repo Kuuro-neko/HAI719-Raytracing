@@ -7,6 +7,14 @@
 #include "Ray.h"
 #include <cfloat>
 
+struct AABBCuttingPlane {
+    float position;
+    unsigned int axis;
+
+    AABBCuttingPlane(unsigned int axis, float position) : axis(axis), position(position) {}
+    AABBCuttingPlane() : axis(0), position(0) {}
+};
+
 class AABB {
     public:
         Vec3 p0;
@@ -53,7 +61,17 @@ class AABB {
             if (tmax <= tmin) return false;
         }
         return true;
-    }   
+    }
+
+    std::pair<AABB, AABB> split(const AABBCuttingPlane &plane) const {
+        AABB left = *this;
+        AABB right = *this;
+
+        left.p1[plane.axis] = plane.position;
+        right.p0[plane.axis] = plane.position;
+
+        return std::make_pair(left, right);
+    }
 };
 
 #endif // AABB_H

@@ -76,6 +76,9 @@ public:
         for( unsigned int It = 0 ; It < meshes.size() ; ++It ) {
             Mesh const & mesh = meshes[It];
             mesh.draw();
+            if (mesh.kdtree) {
+                mesh.kdtree->draw();
+            }
         }
         for( unsigned int It = 0 ; It < spheres.size() ; ++It ) {
             Sphere const & sphere = spheres[It];
@@ -846,6 +849,8 @@ s.material.texture_scale_y = 100.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
+        std::cout << "Building KDTree" << std::endl;
+        meshes[0].computeKDTree();
     }
 
     void setup_random_spheres() {

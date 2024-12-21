@@ -42,6 +42,8 @@ using namespace std;
 #include <thread>
 #include <random>
 
+#define MULTI_THREADED 0
+
 // -------------------------------------------
 // OpenGL/GLUT application code.
 // -------------------------------------------
@@ -201,20 +203,27 @@ void ray_trace_from_camera() {
     std::vector<std::thread> threads;
 
     unsigned int nb_threads = std::thread::hardware_concurrency();
-
-    std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads and " << nsamples << " samples per pixel" << std::endl;
-    clock_t start = clock();
     
     camera.apply();
     matrixUtilities.updated();
     matrixUtilities.updateMatrices();
+    clock_t start = clock();
+    if (MULTI_THREADED) {
+        // multi-threading
+        std::cout << "Ray tracing a " << w << " x " << h << " image using " << nb_threads << " threads and " << nsamples << " samples per pixel" << std::endl;
+        for (int y = 0; y < h; y++) {
+            threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
+        }
 
-    for (int y = 0; y < h; y++) {
-        threads.emplace_back(trace_line, y, w, h, nsamples, std::ref(image));
-    }
-
-    for (auto& t : threads) {
-        t.join();
+        for (auto& t : threads) {
+            t.join();
+        }
+    } else {
+        // single-threading
+        std::cout << "Ray tracing a " << w << " x " << h << " image using 1 thread and " << nsamples << " samples per pixel" << std::endl;
+        for (int y = 0; y < h; y++) {
+            trace_line(y, w, h, nsamples, image);
+        }
     }
 
     clock_t end = clock();
