@@ -67,6 +67,10 @@ void Mesh::loadOFF(const std::string & filename) {
     }
 
     in.close();
+
+    for (unsigned int i = 0; i < triangles.size(); i++) {
+        triangles[i].v[3] = i;
+    }
 }
 
 

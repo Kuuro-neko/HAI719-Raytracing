@@ -364,6 +364,12 @@ public:
         return color;
     }
 
+    void computeKDTrees() {
+        for (int i = 0; i < meshes.size(); i++) {
+            meshes[i].computeKDTree();
+        }
+    }
+
     void setup_single_sphere() {
         clear();
         loadSkybox("img/textures/space.ppm");
@@ -856,7 +862,7 @@ s.material.texture_scale_y = 100.;
             s.material.shininess = 16;
         }
         std::cout << "Building KDTree" << std::endl;
-        meshes[0].computeKDTree();
+        computeKDTrees();
     }
 
     void setup_random_spheres() {
@@ -1103,8 +1109,7 @@ s.material.texture_scale_y = 100.;
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
         }
-
-        meshes[0].computeKDTree();
+        computeKDTrees();
     }
 
     void setup_raccoon() {
@@ -1233,6 +1238,7 @@ s.material.texture_scale_y = 16.;
             s.material.texture_type = Texture_Image;
             s.material.set_texture(&textures[water_orb_texture]);
         }
+        computeKDTrees();
     }
 
     void setup_flamingo_pond() {
@@ -1287,6 +1293,7 @@ s.material.texture_scale_y = 16.;
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
         }
+        computeKDTrees();
     }
 };
 

@@ -43,6 +43,7 @@ public:
                 RayTriangleIntersection intersection = triangle.getIntersection(ray);
                 if (intersection.t < closestIntersection.t) {
                     closestIntersection = intersection;
+                    closestIntersection.tIndex = triangles[i][3];
                 }
             }
             //std::cout << "Intersection (from KDTree::Node::intersect): " << closestIntersection.t << std::endl;
@@ -76,11 +77,11 @@ public:
 };
 
 KDTree::KDTree(const std::vector<MeshTriangle>& triangles, const AABB& aabb, const std::vector<MeshVertex>& vertices) : vertices(vertices), aabb(aabb) {
-    std::cout << "Building KDTree" << std::endl;
-    std::cout << "Triangles : " << triangles.size() << std::endl;
-    std::cout << "Vertices : " << vertices.size() << std::endl;
+    //std::cout << "Building KDTree" << std::endl;
+    //std::cout << "Triangles : " << triangles.size() << std::endl;
+    //std::cout << "Vertices : " << vertices.size() << std::endl;
     root = buildTree(triangles, aabb, 0);
-    std::cout << "KDTree built" << std::endl;
+    //std::cout << "KDTree built" << std::endl;
 }
 
 KDTree::~KDTree() {
