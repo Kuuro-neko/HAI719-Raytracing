@@ -110,7 +110,7 @@ void Mesh::computeKDTree() {
 }
 
 RayTriangleIntersection Mesh::intersect( Ray const & ray ) const {
-        if( kdtree == NULL )  return intersectOld( ray );
+        if( kdtree == NULL )  return intersectOld( ray ); 
         RayTriangleIntersection intersection = kdtree->intersect(ray);
         return intersection;
 

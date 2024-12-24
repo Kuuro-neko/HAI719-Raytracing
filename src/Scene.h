@@ -157,17 +157,6 @@ public:
         int x = u * skybox.w;
         int y = v * skybox.h;
         int index = y * skybox.w + x;
-        // // average all the adjacent pixels (to avoid aliasing), compute the adjacent indices modulo the image size to handle the borders
-        // Vec3 color = Vec3(0.);
-        // int adjIndex;
-        // for (int i = -1; i <= 1; i++) {
-        //     for (int j = -1; j <= 1; j++) {
-        //         adjIndex = (x + i + skybox.w) % skybox.w + (y + j + skybox.h) % skybox.h * skybox.w;
-        //         color += Vec3(skybox.data[adjIndex].r/255., skybox.data[adjIndex].g/255., skybox.data[adjIndex].b/255.);
-        //     }
-        // }
-        // color /= 9.;
-        // color = Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.);
         return Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.) * NRemainingBounces;
     }
 
@@ -223,8 +212,6 @@ public:
                 result.raySphereIntersection = intersection;
             } 
         }
-        // std::cout << "\nSphere intersection : " << result.raySphereIntersection.t << std::endl;
-        // std::cout << "Sphere intersection exists : " << result.raySphereIntersection.intersectionExists << std::endl;
         for (int i = 0; i < squares.size(); i++) {
             RaySquareIntersection intersection = squares[i].intersect(ray);
             if (intersection.intersectionExists && intersection.t < result.t && intersection.t >= EPSILON) {
@@ -232,8 +219,6 @@ public:
                 result.raySquareIntersection = intersection;
             } 
         }
-        // std::cout << "Square intersection : " << result.raySquareIntersection.t << std::endl;
-        // std::cout << "Square intersection exists : " << result.raySquareIntersection.intersectionExists << std::endl;
         for (int i = 0; i < meshes.size(); i++) {
             RayTriangleIntersection intersection = meshes[i].intersect(ray);
             if (intersection.intersectionExists && intersection.t < result.t && intersection.t >= EPSILON) {
@@ -241,8 +226,6 @@ public:
                 result.rayMeshIntersection = intersection;  
             } 
         }
-        // std::cout << "Mesh intersection : " << result.rayMeshIntersection.t << "\n" << std::endl;
-        // std::cout << "Mesh intersection exists : " << result.rayMeshIntersection.intersectionExists << std::endl;
         return result;
     }
 
@@ -334,10 +317,6 @@ public:
             int nb_ech = NB_ECH;
             float delta = lights[i].radius/2.;
             for (int j = 0; j < nb_ech; j++) {
-                // float x = random_float(-delta, delta);
-                // float y = 0.0;
-                // float z = random_float(-delta, delta);
-                // random_light.pos = lights[i].pos + Vec3(x, y, z);
                 random_light.pos = lights[i].pos + random_unit_vector() * delta;
                 L = random_light.pos - intersection;
                 L.normalize();
@@ -357,7 +336,6 @@ public:
 
 
     Vec3 rayTrace( Ray const & rayStart ) {
-        //TODO appeler la fonction recursive
         int bounces = MAXBOUNCES;
         Vec3 color = Vec3(0.) + rayTraceRecursive(rayStart, bounces);
         color /= (float)bounces;
@@ -519,9 +497,6 @@ public:
             s.material.texture_scale_x = 1.*aspect_ratio;
             s.material.texture_scale_y = 1.;
         }
-
-        // 1 = 9
-        // x = 16
 
         { //Left Wall
 

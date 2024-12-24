@@ -65,7 +65,7 @@ struct MeshTriangle {
         return (*this);
     }
     // membres :
-    unsigned int v[4];
+    unsigned int v[4]; // v[0 - 2] : indices des 3 sommets du triangle, v[3] : index du triangle
 };
 
 enum ColorType {
