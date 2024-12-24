@@ -67,6 +67,10 @@ void Mesh::loadOFF(const std::string & filename) {
     }
 
     in.close();
+
+    for (unsigned int i = 0; i < triangles.size(); i++) {
+        triangles[i].v[3] = i;
+    }
 }
 
 
@@ -99,3 +103,15 @@ void Mesh::centerAndScaleToUnit () {
     for  (unsigned int i = 0; i < vertices.size (); i++)
         vertices[i].position = (vertices[i].position - c) / maxD;
 }
+
+void Mesh::computeKDTree() {
+    computeAABB();
+    kdtree = new KDTree(triangles, aabb, vertices);
+}
+
+RayTriangleIntersection Mesh::intersect( Ray const & ray ) const {
+        if( kdtree == NULL )  return intersectOld( ray ); 
+        RayTriangleIntersection intersection = kdtree->intersect(ray);
+        return intersection;
+
+    }

@@ -13,12 +13,21 @@
 
 #include <cfloat>
 
+
 #include "AABB.h"
 
+class KDTree;
+
+#include "KDTree.hpp"
+
+#define TRIANGLE_SCALING 1.000001f
 
 // -------------------------------------------
 // Basic Mesh class
 // -------------------------------------------
+
+
+
 
 struct MeshVertex {
     inline MeshVertex () {}
@@ -40,23 +49,23 @@ struct MeshVertex {
 
 struct MeshTriangle {
     inline MeshTriangle () {
-        v[0] = v[1] = v[2] = 0;
+        v[0] = v[1] = v[2] = v[3] = 0;
     }
     inline MeshTriangle (const MeshTriangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
+        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];  v[3] = t.v[3];
     }
     inline MeshTriangle (unsigned int v0, unsigned int v1, unsigned int v2) {
-        v[0] = v0;   v[1] = v1;   v[2] = v2;
+        v[0] = v0;   v[1] = v1;   v[2] = v2;  v[3] = 0;
     }
     unsigned int & operator [] (unsigned int iv) { return v[iv]; }
     unsigned int operator [] (unsigned int iv) const { return v[iv]; }
     inline virtual ~MeshTriangle () {}
     inline MeshTriangle & operator = (const MeshTriangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
+        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];   v[3] = t.v[3];
         return (*this);
     }
     // membres :
-    unsigned int v[3];
+    unsigned int v[4]; // v[0 - 2] : indices des 3 sommets du triangle, v[3] : index du triangle
 };
 
 enum ColorType {
@@ -105,6 +114,7 @@ public:
     std::vector< Vec3 > faceColors;
     ColorType colorType;
     AABB aabb;
+    KDTree * kdtree;
 
     std::vector< float > positions_array;
     std::vector< float > normalsArray;
@@ -117,6 +127,7 @@ public:
     void recomputeNormals ();
     void centerAndScaleToUnit ();
     void scaleUnit ();
+    void computeKDTree();
 
 
     virtual
@@ -243,7 +254,7 @@ public:
 
     }
 
-    RayTriangleIntersection intersect( Ray const & ray ) const {
+    RayTriangleIntersection intersectOld( Ray const & ray ) const {
         RayTriangleIntersection closestIntersection;
         closestIntersection.t = FLT_MAX;
         // Accelerer en testant avec l'AABB du mesh avant le triangle
@@ -252,11 +263,10 @@ public:
         // Creer un objet Triangle pour chaque face
         // Vous constaterez des problemes de précision
         // solution : ajouter un facteur d'échelle lors de la création du Triangle : float triangleScaling = 1.000001;
-        float triangleScaling = 1.000001;
         for (unsigned int i = 0; i < triangles.size(); i++) {
-            Triangle triangle(vertices[triangles[i][0]].position * triangleScaling,
-                              vertices[triangles[i][1]].position * triangleScaling,
-                              vertices[triangles[i][2]].position * triangleScaling);
+            Triangle triangle(vertices[triangles[i][0]].position * TRIANGLE_SCALING,
+                              vertices[triangles[i][1]].position * TRIANGLE_SCALING,
+                              vertices[triangles[i][2]].position * TRIANGLE_SCALING);
             RayTriangleIntersection intersection = triangle.getIntersection(ray);
             if (intersection.intersectionExists && intersection.t < closestIntersection.t) {
                 closestIntersection = intersection;
@@ -265,6 +275,8 @@ public:
         }
         return closestIntersection;
     }
+
+    RayTriangleIntersection intersect( Ray const & ray ) const;
 };
 
 

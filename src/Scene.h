@@ -76,6 +76,9 @@ public:
         for( unsigned int It = 0 ; It < meshes.size() ; ++It ) {
             Mesh const & mesh = meshes[It];
             mesh.draw();
+            if (mesh.kdtree) {
+                mesh.kdtree->draw();
+            }
         }
         for( unsigned int It = 0 ; It < spheres.size() ; ++It ) {
             Sphere const & sphere = spheres[It];
@@ -154,17 +157,6 @@ public:
         int x = u * skybox.w;
         int y = v * skybox.h;
         int index = y * skybox.w + x;
-        // // average all the adjacent pixels (to avoid aliasing), compute the adjacent indices modulo the image size to handle the borders
-        // Vec3 color = Vec3(0.);
-        // int adjIndex;
-        // for (int i = -1; i <= 1; i++) {
-        //     for (int j = -1; j <= 1; j++) {
-        //         adjIndex = (x + i + skybox.w) % skybox.w + (y + j + skybox.h) % skybox.h * skybox.w;
-        //         color += Vec3(skybox.data[adjIndex].r/255., skybox.data[adjIndex].g/255., skybox.data[adjIndex].b/255.);
-        //     }
-        // }
-        // color /= 9.;
-        // color = Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.);
         return Vec3(skybox.data[index].r/255., skybox.data[index].g/255., skybox.data[index].b/255.) * NRemainingBounces;
     }
 
@@ -325,10 +317,6 @@ public:
             int nb_ech = NB_ECH;
             float delta = lights[i].radius/2.;
             for (int j = 0; j < nb_ech; j++) {
-                // float x = random_float(-delta, delta);
-                // float y = 0.0;
-                // float z = random_float(-delta, delta);
-                // random_light.pos = lights[i].pos + Vec3(x, y, z);
                 random_light.pos = lights[i].pos + random_unit_vector() * delta;
                 L = random_light.pos - intersection;
                 L.normalize();
@@ -348,11 +336,16 @@ public:
 
 
     Vec3 rayTrace( Ray const & rayStart ) {
-        //TODO appeler la fonction recursive
         int bounces = MAXBOUNCES;
         Vec3 color = Vec3(0.) + rayTraceRecursive(rayStart, bounces);
         color /= (float)bounces;
         return color;
+    }
+
+    void computeKDTrees() {
+        for (int i = 0; i < meshes.size(); i++) {
+            meshes[i].computeKDTree();
+        }
     }
 
     void setup_single_sphere() {
@@ -504,9 +497,6 @@ public:
             s.material.texture_scale_x = 1.*aspect_ratio;
             s.material.texture_scale_y = 1.;
         }
-
-        // 1 = 9
-        // x = 16
 
         { //Left Wall
 
@@ -846,6 +836,8 @@ s.material.texture_scale_y = 100.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
+        std::cout << "Building KDTree" << std::endl;
+        computeKDTrees();
     }
 
     void setup_random_spheres() {
@@ -1092,6 +1084,7 @@ s.material.texture_scale_y = 100.;
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
         }
+        computeKDTrees();
     }
 
     void setup_raccoon() {
@@ -1220,6 +1213,7 @@ s.material.texture_scale_y = 16.;
             s.material.texture_type = Texture_Image;
             s.material.set_texture(&textures[water_orb_texture]);
         }
+        computeKDTrees();
     }
 
     void setup_flamingo_pond() {
@@ -1274,6 +1268,7 @@ s.material.texture_scale_y = 16.;
             m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
             m.material.shininess = 6.;
         }
+        computeKDTrees();
     }
 };
 

@@ -5,14 +5,14 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/main",
+            "program": "${workspaceFolder}/main", // Remplacez par le chemin de votre exécutable
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb", // Assurez-vous que ce chemin est correct pour votre système
+            "miDebuggerPath": "/usr/bin/gdb", // Chemin vers gdb
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -25,7 +25,10 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build"
+            "preLaunchTask": "build", // Tâche de pré-lancement pour compiler le projet
+            "logging": {
+                "engineLogging": true
+            }
         }
     ]
 }

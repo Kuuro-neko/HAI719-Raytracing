@@ -4,6 +4,7 @@
 #include "Ray.h"
 #include "Plane.h"
 #include <cfloat>
+#include "AABB.h"
 
 struct RayTriangleIntersection{
     bool intersectionExists;
@@ -12,6 +13,8 @@ struct RayTriangleIntersection{
     unsigned int tIndex;
     Vec3 intersection;
     Vec3 normal;
+
+    RayTriangleIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
 class Triangle {
@@ -120,6 +123,20 @@ public:
             result.t = FLT_MAX;
             return result;
         }
+    }
+
+    AABB getAABB() {
+        Vec3 p0(FLT_MAX);
+        Vec3 p1(-FLT_MAX);
+        for (int i = 0; i < 3; i++) {
+            p0[i] = std::min(p0[i], m_c[0][i]);
+            p0[i] = std::min(p0[i], m_c[1][i]);
+            p0[i] = std::min(p0[i], m_c[2][i]);
+            p1[i] = std::max(p1[i], m_c[0][i]);
+            p1[i] = std::max(p1[i], m_c[1][i]);
+            p1[i] = std::max(p1[i], m_c[2][i]);
+        }
+        return AABB(p0, p1);
     }
 };
 #endif
