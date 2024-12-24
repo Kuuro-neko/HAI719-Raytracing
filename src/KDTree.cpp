@@ -1,6 +1,7 @@
 #include "KDTree.hpp"
 #include <algorithm>
 #include "Functions.h"
+#include "Constants.h"
 
 class KDTree::Node {
 public:
@@ -58,7 +59,7 @@ public:
             } else {
                 rightIntersection.t = FLT_MAX;
             }
-            
+
             if (leftIntersection.t < rightIntersection.t) {
                 return leftIntersection;
             } else {

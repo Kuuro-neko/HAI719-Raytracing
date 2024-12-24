@@ -4,6 +4,7 @@
 #include "Vec3.h"
 #include <vector>
 #include "Functions.h"
+#include "Constants.h"
 #include "Ray.h"
 #include <cfloat>
 

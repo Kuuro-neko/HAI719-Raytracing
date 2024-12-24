@@ -4,8 +4,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-#define EPSILON 0.00001
-
 float random_float();
 float random_float(float min, float max);
 Vec3 random_unit_vector();
