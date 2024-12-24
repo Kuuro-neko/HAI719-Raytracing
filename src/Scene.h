@@ -16,10 +16,8 @@
 #include <GL/glut.h>
 
 #include "Functions.h"
+#include "Constants.h"
 #include "imageLoader.h"
-
-#define MAXBOUNCES 6
-#define NB_ECH 10
 
 enum LightType {
     LightType_Spherical,

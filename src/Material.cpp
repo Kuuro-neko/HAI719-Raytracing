@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "imageLoader.h"    
+#include "Constants.h"
 
 Material::Material() {
     type = Material_Diffuse_Blinn_Phong;
@@ -125,7 +126,6 @@ void Material::get_normal(Vec3& normal, float u, float v, Vec3 &T, Vec3 &B) {
     x = int(u * (normals->w - 1));
     y = int(v * (normals->h - 1));
     index = y * normals->w + x;
-    // normal = Vec3(normals->data[index].r, normals->data[index].g, normals->data[index].b);
     // Map the normal values from [0, 255] to [-1, 1]
     Vec3 normal_from_map = Vec3(normals->data[index].r/127.5 - 1., normals->data[index].g/127.5 - 1., normals->data[index].b/127.5 - 1.);
     

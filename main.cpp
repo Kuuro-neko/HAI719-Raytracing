@@ -42,8 +42,7 @@ using namespace std;
 #include <thread>
 #include <random>
 
-#define MULTI_THREADED 1
-#define MONORAY 0
+#include "src/Constants.h"
 
 // -------------------------------------------
 // OpenGL/GLUT application code.
@@ -62,7 +61,7 @@ static bool fullScreen = false;
 
 std::vector<Scene> scenes;
 unsigned int selected_scene;
-unsigned int nsamples = 20;
+unsigned int nsamples = DEFAULT_NSAMPLES;
 
 MatrixUtilities matrixUtilities;
 
@@ -413,7 +412,7 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     matrixUtilities = MatrixUtilities();
-    selected_scene=2;
+    selected_scene=DEFAULT_SELECTED_SCENE;
     scenes.resize(10);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();

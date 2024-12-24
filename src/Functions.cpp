@@ -1,4 +1,5 @@
 #include "Functions.h"
+#include "Constants.h"
 
 float random_float() {
     static std::uniform_real_distribution<float> distribution(0.0, 1.0);
@@ -9,16 +10,6 @@ float random_float() {
 float random_float(float min, float max) {
     return min + (max - min) * random_float();
 }
-
-
-/*
-float random_float() {
-    return (float)rand() / RAND_MAX;
-}
-
-float random_float(float min, float max) {
-    return min + (max - min) * random_float();
-}*/
 
 Vec3 random_unit_vector() {
     Vec3 p = Vec3(random_float(-1, 1), random_float(-1, 1), random_float(-1, 1));

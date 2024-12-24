@@ -8,8 +8,7 @@
 #include "Triangle.h"
 #include "Vec3.h"
 
-#define KDTREE_MAX_DEPTH 100
-#define KDTREE_TRIANGLES_PER_LEAF 40
+#include "Constants.h"
 
 struct MeshVertex;
 struct MeshTriangle;
