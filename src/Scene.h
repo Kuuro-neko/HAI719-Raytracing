@@ -1268,6 +1268,31 @@ s.material.texture_scale_y = 16.;
         }
         computeKDTrees();
     }
+
+    void setup_flamingo_lake() {
+        clear();
+        loadSkybox("img/textures/sky.ppm");
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3( -1.0, 18., -1.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
+        {
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/lake.off");
+            m.centerAndScaleToUnit();
+            m.scale(Vec3(10.));
+            m.build_arrays();
+
+        }
+        computeKDTrees();
+    }
 };
 
 

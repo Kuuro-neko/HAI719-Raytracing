@@ -413,7 +413,7 @@ int main (int argc, char ** argv) {
     camera.move(0., 0., -3.1);
     matrixUtilities = MatrixUtilities();
     selected_scene=DEFAULT_SELECTED_SCENE;
-    scenes.resize(10);
+    scenes.resize(11);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
     scenes[2].setup_cornell_box(float(SCREENWIDTH)/float(SCREENHEIGHT));
@@ -424,6 +424,7 @@ int main (int argc, char ** argv) {
     scenes[7].setup_flamingo();
     scenes[8].setup_raccoon();
     scenes[9].setup_flamingo_pond();
+    scenes[10].setup_flamingo_lake();
 
 
     glutMainLoop ();
