@@ -25,9 +25,10 @@ struct Material {
     Vec3 diffuse_material;
     Vec3 specular_material;
     double shininess;
+    Vec3 motion_blur_translation = Vec3(0.);
 
     float index_medium;
-    float transparency;
+    float transparency = 0.;
 
     MaterialType type;
     TextureType texture_type;

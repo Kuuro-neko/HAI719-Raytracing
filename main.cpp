@@ -189,7 +189,7 @@ void trace_line(int y, int w, int h, unsigned int nsamples, std::vector<Vec3>& i
             float u = ((float)(x) + dist(rng)) / w;
             float v = ((float)(y) + dist(rng)) / h;
             matrixUtilities.screen_space_to_world_space_ray(u, v, pos, dir);
-            Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir));
+            Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir, dist(rng)));
             image[x + y * w] += color;
         }
         image[x + y * w] /= nsamples;
@@ -215,7 +215,7 @@ void ray_trace_from_camera() {
         std::cout << "Sending only one ray to the screen position (" << x << ", " << y << ") and using the resulting color for the whole image" << std::endl;
         Vec3 pos, dir;
         matrixUtilities.screen_space_to_world_space_ray(x / (float)w, y / (float)h, pos, dir);
-        Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir));
+        Vec3 color = scenes[selected_scene].rayTrace(Ray(pos, dir, 0.f));
         gamma_correct(color);
         for (int i = 0; i < w * h; i++) {
             image[i] = color;

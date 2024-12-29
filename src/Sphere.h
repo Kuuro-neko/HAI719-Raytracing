@@ -87,18 +87,19 @@ public:
         computeAABBFromPosArray();
     }
 
-
+    // TO DO add , float time = 0.f to each intersect function (square and sphere and mesh) for motion blur
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
         //TODO calcul l'intersection rayon sphere
+        Vec3 timed_center = m_center + (ray.time) * material.motion_blur_translation;
         Vec3 o = ray.origin();
         Vec3 d = ray.direction();
         float t, t1;
         float r = m_radius;
         float delta, a, b, c;
         a = Vec3::dot(d,d);
-        b = 2.*Vec3::dot(d, (o-m_center));
-        c = Vec3::dot((o-m_center),(o-m_center)) - r*r;
+        b = 2.*Vec3::dot(d, (o-timed_center));
+        c = Vec3::dot((o-timed_center),(o-timed_center)) - r*r;
         delta = b*b - 4*a*c;
 
         if (delta < 0) {
@@ -121,7 +122,7 @@ public:
             return intersection;
         }
         intersection.intersection = o + t*d;
-        intersection.normal = (intersection.intersection - m_center);
+        intersection.normal = (intersection.intersection - timed_center);
         intersection.normal.normalize();
         intersection.intersectionExists = true;
         intersection.t = t;

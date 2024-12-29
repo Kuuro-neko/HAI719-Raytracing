@@ -57,7 +57,7 @@ void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &inters
             break;
     }
     direction.normalize();
-    ray_out = Ray(intersection + EPSILON * direction, direction);
+    ray_out = Ray(intersection + EPSILON * direction, direction, ray_in.time);
 }
 
 

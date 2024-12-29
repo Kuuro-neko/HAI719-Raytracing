@@ -65,7 +65,7 @@ public:
     RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
 
-        Vec3 m_bottom_left = vertices[0].position;
+        Vec3 m_bottom_left = vertices[0].position + ray.time * material.motion_blur_translation;
         Vec3 m_right_vector = vertices[1].position - vertices[0].position;
         Vec3 m_up_vector = vertices[3].position - vertices[0].position;
         Vec3 m_normal = Vec3::cross(m_right_vector, m_up_vector);
@@ -80,7 +80,8 @@ public:
             return intersection;
         }
 
-        if (dotRN > 0) {
+        // Backface culling
+        if (dotRN > 0 && material.type != Material_Glass) {
             intersection.intersectionExists = false;
             intersection.t = FLT_MAX;
             return intersection;

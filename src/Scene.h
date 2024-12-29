@@ -233,15 +233,21 @@ public:
     bool computeShadow(Ray const & ray, float t = FLT_MAX) {
         for (int i = 0; i < spheres.size(); i++) {
             RaySphereIntersection intersection = spheres[i].intersect(ray);
-            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) return true;
+            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) {
+                if (random_float() > spheres[i].material.transparency) return true;
+            }
         }
         for (int i = 0; i < squares.size(); i++) {
             RaySquareIntersection intersection = squares[i].intersect(ray);
-            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) return true;
+            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) {
+                if (random_float() > squares[i].material.transparency) return true;
+            }
         }
         for (int i = 0; i < meshes.size(); i++) {
             RayTriangleIntersection intersection = meshes[i].intersect(ray);
-            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) return true;
+            if (intersection.intersectionExists && intersection.t < t && intersection.t >= EPSILON) {
+                if (random_float() > meshes[i].material.transparency) return true;
+            }
         }
         return false;
     }
@@ -319,7 +325,7 @@ public:
                 L = random_light.pos - intersection;
                 L.normalize();
                 float tLight = (random_light.pos - intersection).length();
-                if (computeShadow(Ray(intersection + L * EPSILON, L), tLight)) blocked++;
+                if (computeShadow(Ray(intersection + L * EPSILON, L, ray.time), tLight)) blocked++;
             }
             float shadow = 1. - float(blocked) / float(nb_ech);
             color *= shadow;
@@ -327,6 +333,7 @@ public:
         Vec3 newColor;
         Ray newRay;
         material.scatter(ray, normal, intersection, newRay);
+        newRay.time = ray.time;
         newColor = rayTraceRecursive(newRay, NRemainingBounces-1);
         newColor = Vec3::compProduct(newColor, material.diffuse_material);
         return color + newColor + emission;
@@ -415,18 +422,19 @@ public:
         int brickwall_normal = load_normal_map("img/normalMaps/brickwall_normal.ppm");
         int floor_normal = load_normal_map("img/normalMaps/n1.ppm");
         int sand_texture = load_texture("img/planeTextures/sand.ppm");
+        int water_normal = load_normal_map("img/normalMaps/water_normal.ppm");
 
-        // {
-        //     lights.resize( lights.size() + 1 );
-        //     Light & light = lights[lights.size() - 1];
-        //     // base settings : 0.0    1.5      0.0
-        //     light.pos = Vec3( 0.0, 1.5, 0.0 );
-        //     light.radius = 1.5f;
-        //     light.powerCorrection = 2.f; 
-        //     light.type = LightType_Spherical;
-        //     light.material = Vec3(1,1,1);
-        //     light.isInCamSpace = false;
-        // }
+        {
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            // base settings : 0.0    1.5      0.0
+            light.pos = Vec3( 0.0, 1.5, 0.0 );
+            light.radius = 1.5f;
+            light.powerCorrection = 2.f; 
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+        }
 
         // { //Ceiling square emissive light
         //     squares.resize( squares.size() + 1 );
@@ -470,7 +478,7 @@ public:
         Material emissive = Material();
         emissive.emissive = true;
         emissive.light_color = Vec3(1.);
-        emissive.light_intensity = 30.;
+        emissive.light_intensity = 60.;
         materials.push_back(emissive);
         for (int i = 0; i < 4; i++) {
             materials.push_back(white);
@@ -544,7 +552,26 @@ public:
             s.material.shininess = 1;
             //s.material.texture_type = Texture_Image;
             //s.material.set_texture(&textures[sand_texture]);
-            s.material.set_normals(&normals[floor_normal]);
+            //s.material.set_normals(&normals[floor_normal]);
+        }
+
+        { //Water above floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(0., 0.3, 0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 35./255., 137./255., 218./255. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 50.;
+            s.material.type = Material_Glass;
+            s.material.transparency = 0.9;
+            //s.material.texture_type = Texture_Image;
+            //s.material.set_texture(&textures[sand_texture]);
+            s.material.set_normals(&normals[water_normal]);
         }
 
         { //Ceiling
@@ -680,8 +707,8 @@ public:
         { // Diffuse Sphere
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(0. , 0. , -8.);
-            s.m_radius = 2.f;
+            s.m_center = Vec3(0. , 0.5 , -8.);
+            s.m_radius = 1.5f;
             s.build_arrays();
             s.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
@@ -690,6 +717,7 @@ public:
             s.material.set_texture(&textures[sun_texture]);
             s.material.emissive = true;
             s.material.light_intensity = 15.;
+            s.material.motion_blur_translation = Vec3(0., 1., 0.);
         }
         { // Mirror Sphere
             spheres.resize( spheres.size() + 1 );
@@ -1275,7 +1303,7 @@ s.material.texture_scale_y = 16.;
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3( -1.0, 18., -1.0 );
+            light.pos = Vec3( 1.0, 2., 1.0 );
             light.radius = 1.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -1287,9 +1315,26 @@ s.material.texture_scale_y = 16.;
             Mesh & m = meshes[meshes.size() - 1];
             m.loadOFF("mesh/lake.off");
             m.centerAndScaleToUnit();
-            m.scale(Vec3(10.));
+            m.scale(Vec3(8.));
+            m.rotate_y(-15.);
             m.build_arrays();
 
+        }
+        // sphere
+        {
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0., 4., 2.);
+            s.m_radius = 0.75f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 1.);
+            s.material.specular_material = Vec3( 1.);
+            s.material.shininess = 16;
+            s.material.transparency = 1.0;
+            s.material.index_medium = 1.4;
+            s.material.emissive = true;
+            s.material.light_intensity = 50.;
         }
         computeKDTrees();
     }
