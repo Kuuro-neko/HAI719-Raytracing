@@ -424,17 +424,17 @@ public:
         int sand_texture = load_texture("img/planeTextures/sand.ppm");
         int water_normal = load_normal_map("img/normalMaps/water_normal.ppm");
 
-        {
-            lights.resize( lights.size() + 1 );
-            Light & light = lights[lights.size() - 1];
-            // base settings : 0.0    1.5      0.0
-            light.pos = Vec3( 0.0, 1.5, 0.0 );
-            light.radius = 1.5f;
-            light.powerCorrection = 2.f; 
-            light.type = LightType_Spherical;
-            light.material = Vec3(1,1,1);
-            light.isInCamSpace = false;
-        }
+        // {
+        //     lights.resize( lights.size() + 1 );
+        //     Light & light = lights[lights.size() - 1];
+        //     // base settings : 0.0    1.5      0.0
+        //     light.pos = Vec3( 0.0, 1.5, 0.0 );
+        //     light.radius = 1.5f;
+        //     light.powerCorrection = 2.f; 
+        //     light.type = LightType_Spherical;
+        //     light.material = Vec3(1,1,1);
+        //     light.isInCamSpace = false;
+        // }
 
         // { //Ceiling square emissive light
         //     squares.resize( squares.size() + 1 );
@@ -550,29 +550,30 @@ public:
             s.material.diffuse_material = Vec3( 246./255., 204./255., 162./255. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 1;
-            //s.material.texture_type = Texture_Image;
-            //s.material.set_texture(&textures[sand_texture]);
-            //s.material.set_normals(&normals[floor_normal]);
+            s.material.texture_type = Texture_Image;
+            s.material.set_texture(&textures[sand_texture]);
+            s.material.set_normals(&normals[floor_normal]);
         }
 
-        { //Water above floor
-            squares.resize( squares.size() + 1 );
-            Square & s = squares[squares.size() - 1];
-            s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2.*aspect_ratio, 2., 1.));
-            s.rotate_x(-90);
-            s.translate(Vec3(0., 0.3, 0.));
-            s.build_arrays();
-            s.material.diffuse_material = Vec3( 35./255., 137./255., 218./255. );
-            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
-            s.material.shininess = 50.;
-            s.material.type = Material_Glass;
-            s.material.transparency = 0.9;
-            //s.material.texture_type = Texture_Image;
-            //s.material.set_texture(&textures[sand_texture]);
-            s.material.set_normals(&normals[water_normal]);
-        }
+        // { //Water above floor
+        //     squares.resize( squares.size() + 1 );
+        //     Square & s = squares[squares.size() - 1];
+        //     s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+        //     s.translate(Vec3(0., 0., -2.));
+        //     s.scale(Vec3(2.*aspect_ratio, 2., 1.));
+        //     s.rotate_x(-90);
+        //     s.translate(Vec3(0., 0.3, 0.));
+        //     s.build_arrays();
+        //     s.material.diffuse_material = Vec3( 35./255., 137./255., 218./255. );
+        //     s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+        //     s.material.shininess = 50.;
+        //     s.material.type = Material_Glass;
+        //     s.material.transparency = 0.9;
+        //     //s.material.texture_type = Texture_Image;
+        //     //s.material.set_texture(&textures[sand_texture]);
+        //     s.material.set_normals(&normals[water_normal]);
+        //     //s.material.motion_blur_translation = Vec3(0.,-0.2,0.);
+        // }
 
         { //Ceiling
             squares.resize( squares.size() + 1 );
@@ -862,7 +863,6 @@ s.material.texture_scale_y = 100.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
-        std::cout << "Building KDTree" << std::endl;
         computeKDTrees();
     }
 
@@ -929,11 +929,12 @@ s.material.texture_scale_y = 100.;
         }
 
         for (int i = 0; i < nSpheres; i++) {
+            float height = random_float(0.25, 1.);
             float radius = random_float(0.25, 1.5);
             int type = rand() % 3;
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(random_float(-30., 30.), -4+radius, random_float(-50., -2.));
+            s.m_center = Vec3(random_float(-30., 30.), -4+radius+height, random_float(-50., -2.));
             s.m_radius = radius;
             s.build_arrays();
             switch (type) {
@@ -957,6 +958,7 @@ s.material.texture_scale_y = 100.;
                     s.material.shininess = random_float(0., 30.);
                     break;
             }
+            s.material.motion_blur_translation = Vec3(0., height, 0.);
         }
     }
 
@@ -1300,6 +1302,8 @@ s.material.texture_scale_y = 16.;
     void setup_flamingo_lake() {
         clear();
         loadSkybox("img/textures/sky.ppm");
+        int sun_texture = load_texture("img/sphereTextures/s2.ppm");
+        int water_normal = load_normal_map("img/normalMaps/water_normal.ppm");
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -1310,31 +1314,296 @@ s.material.texture_scale_y = 16.;
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
         }
-        {
+        { //Floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(50., 50., 1.));
+            s.rotate_x(-90);
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Checkerboard;
+            s.material.checkerboard_color1 = Vec3(1.);
+            s.material.checkerboard_color2 = Vec3( 0.1,0.2,0.5 );
+            s.material.texture_scale_x = 100.;
+            s.material.texture_scale_y = 100.;
+        }
+                        { //Water
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(50., 50., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(0., 0.3, 0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.2,0.5 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.type = Material_Glass;
+            s.material.texture_scale_x = 10.;
+            s.material.texture_scale_y = 10.;
+            s.material.set_normals(&normals[water_normal]);
+            
+        }
+        // { // Diffuse Sphere
+        //     spheres.resize( spheres.size() + 1 );
+        //     Sphere & s = spheres[spheres.size() - 1];
+        //     s.m_center = Vec3(0. , -1. , -6.);
+        //     s.m_radius = 2.f;
+        //     s.build_arrays();
+        //     s.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
+        //     s.material.specular_material = Vec3( 0.2,0.2,0.2 );
+        //     s.material.shininess = 20;
+        //     s.material.texture_type = Texture_Image;
+        //     s.material.set_texture(&textures[sun_texture]);
+        //     s.material.emissive = true;
+        //     s.material.light_intensity = 15.;
+        // }
+        { // Flamingo
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/lake.off");
+            m.loadOFF("mesh/flamingo_float.off");
             m.centerAndScaleToUnit();
-            m.scale(Vec3(8.));
-            m.rotate_y(-15.);
+            m.rotate_x(270);
+            m.translate(Vec3(0., -1.5, -1.));
             m.build_arrays();
-
+            m.material.diffuse_material = Vec3( 237./255.,149./255., 218./255.);
+            m.material.specular_material = Vec3( 1. );
+            m.material.shininess = 6.;
         }
-        // sphere
-        {
-            spheres.resize( spheres.size() + 1 );
-            Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(0., 4., 2.);
-            s.m_radius = 0.75f;
+        computeKDTrees();
+    }
+
+    void setup_backrooms_pool() {
+        clear();
+        loadSkybox("img/textures/sky.ppm");
+        int pool_tiles_texture = load_texture("img/planeTextures/white_pool_tiles.ppm");
+        int pool_tiles_normal = load_normal_map("img/normalMaps/pool_tiles_normal.ppm");
+        int water_normal = load_normal_map("img/normalMaps/water_normal.ppm");
+        { //Pool water
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(4., 8., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(0.,-0.75,0.));
             s.build_arrays();
-            s.material.type = Material_Glass;
-            s.material.diffuse_material = Vec3( 1.);
-            s.material.specular_material = Vec3( 1.);
+            s.material.diffuse_material = Vec3( 170./255.,213./255.,219./255. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
-            s.material.transparency = 1.0;
-            s.material.index_medium = 1.4;
-            s.material.emissive = true;
-            s.material.light_intensity = 50.;
+            s.material.type = Material_Glass;
+            s.material.transparency = 0.95;
+            s.material.texture_type = Texture_None;
+            s.material.set_normals(&normals[water_normal]);
+        }
+        { //Pool floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(4., 8., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(0.,-1.,0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+        { //Pool right wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 8., 1.));
+            s.rotate_x(-90);
+            s.rotate_z(90);
+            s.translate(Vec3(2.,-2.5,0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 0.25;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+        { //Pool left wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 8., 1.));
+            s.rotate_x(-90);
+            s.rotate_z(-90);
+            s.translate(Vec3(-2.,-2.5,0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 0.25;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+        { //Pool right upper floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(1., 8., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(5.,0.,0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+
+        { //Pool right upper ceil
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(1., 8., 1.));
+            s.rotate_x(90);
+            s.translate(Vec3(5.,0.,-12.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+
+        { //Pool left upper floor
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(1., 8., 1.));
+            s.rotate_x(-90);
+            s.translate(Vec3(-5.,0.,0.));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+
+        { //Pool right upper ceil
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(1., 8., 1.));
+            s.rotate_x(90);
+            s.translate(Vec3(5.,0.,-12.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+
+        { //Pool left upper ceil
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(1., 8., 1.));
+            s.rotate_x(90);
+            s.translate(Vec3(-5.,0.,-12.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+        { //Pool right middle wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(8., 2., 1.));
+            s.rotate_y(-90);
+            s.translate(Vec3(4.,-1.6,-6.4));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
+        }
+        // { //Pool right upper wall
+        //     squares.resize( squares.size() + 1 );
+        //     Square & s = squares[squares.size() - 1];
+        //     s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+        //     s.translate(Vec3(0., 0., -2.));
+        //     s.scale(Vec3(8., 2., 1.));
+        //     s.rotate_y(-90);
+        //     s.translate(Vec3(2.,2.,-6.4));
+        //     s.build_arrays();
+        //     s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+        //     s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+        //     s.material.shininess = 16;
+        //     s.material.texture_type = Texture_Image;
+        //     s.material.texture_scale_x = 1.;
+        //     s.material.texture_scale_y = 2.;
+        //     s.material.set_texture(&textures[pool_tiles_texture]);
+        //     s.material.set_normals(&normals[pool_tiles_normal]);
+        // }
+        { //Pool left middle wall
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(8., 2., 1.));
+            s.rotate_y(90);
+            s.translate(Vec3(-4.,-1.6,-6.4));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.texture_type = Texture_Image;
+            s.material.texture_scale_x = 1.;
+            s.material.texture_scale_y = 2.;
+            s.material.set_texture(&textures[pool_tiles_texture]);
+            s.material.set_normals(&normals[pool_tiles_normal]);
         }
         computeKDTrees();
     }

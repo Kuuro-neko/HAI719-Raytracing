@@ -49,8 +49,8 @@ using namespace std;
 // -------------------------------------------
 
 static GLint window;
-static unsigned int SCREENWIDTH = 480;
-static unsigned int SCREENHEIGHT = 480;
+static unsigned int SCREENWIDTH = 850; // 480
+static unsigned int SCREENHEIGHT = 480; // 480
 static Camera camera;
 static bool mouseRotatePressed = false;
 static bool mouseMovePressed = false;
@@ -424,7 +424,7 @@ int main (int argc, char ** argv) {
     scenes[7].setup_flamingo();
     scenes[8].setup_raccoon();
     scenes[9].setup_flamingo_pond();
-    scenes[10].setup_flamingo_lake();
+    scenes[10].setup_backrooms_pool();
 
 
     glutMainLoop ();
