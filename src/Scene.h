@@ -1462,7 +1462,7 @@ s.material.texture_scale_y = 16.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
             s.material.type = Material_Glass;
-            s.material.transparency = 0.95;
+            s.material.transparency = 0.99;
             s.material.texture_type = Texture_None;
             s.material.set_normals(&normals[water_normal]);
         }
@@ -1680,19 +1680,67 @@ s.material.texture_scale_y = 16.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
             s.material.texture_type = Texture_Image;
-            s.material.texture_scale_x = 1.;
-            s.material.texture_scale_y = 2.;
+            s.material.texture_scale_x = 2.;
+            s.material.texture_scale_y = 1.;
             s.material.set_texture(&textures[pool_tiles_texture]);
             s.material.set_normals(&normals[pool_tiles_normal]);
         }
-        { //Pool right middle wall
+        { //Pool right middle wall light 1
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(0.5, 1., 1.));
+            s.scale(Vec3(0.5, 0.5, 1.));
             s.rotate_y(-90);
-            s.translate(Vec3(3.95,1.,-6.4));
+            s.translate(Vec3(3.95,0.9,-0.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
+        { //Pool right middle wall light 2
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(-90);
+            s.translate(Vec3(3.95,0.9,-4.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
+        { //Pool right middle wall light 3
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(-90);
+            s.translate(Vec3(3.95,0.9,-8.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
+        { //Pool right middle wall light 3
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(-90);
+            s.translate(Vec3(3.95,0.9,-12.75));
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
@@ -1714,19 +1762,19 @@ s.material.texture_scale_y = 16.;
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
             s.material.texture_type = Texture_Image;
-            s.material.texture_scale_x = 1.;
-            s.material.texture_scale_y = 2.;
+            s.material.texture_scale_x = 2.;
+            s.material.texture_scale_y = 1.;
             s.material.set_texture(&textures[pool_tiles_texture]);
             s.material.set_normals(&normals[pool_tiles_normal]);
         }
-        { //Pool left middle wall
+        { //Pool left middle wall light 1
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(0.5, 1., 1.));
+            s.scale(Vec3(0.5, 0.5, 1.));
             s.rotate_y(90);
-            s.translate(Vec3(-3.95,1.,-6.4));
+            s.translate(Vec3(-3.95,0.8,-0.75));
             s.build_arrays();
             s.material.diffuse_material = Vec3( 1. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
@@ -1735,7 +1783,54 @@ s.material.texture_scale_y = 16.;
             s.material.light_intensity = lights_intensity;
             s.material.light_color = Vec3(1.);
         }
-
+        { //Pool left middle wall light 1
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(90);
+            s.translate(Vec3(-3.95,0.8,-4.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
+        { //Pool left middle wall light 1
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(90);
+            s.translate(Vec3(-3.95,0.8,-8.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
+        { //Pool left middle wall light 1
+            squares.resize( squares.size() + 1 );
+            Square & s = squares[squares.size() - 1];
+            s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
+            s.translate(Vec3(0., 0., -2.));
+            s.scale(Vec3(0.5, 0.5, 1.));
+            s.rotate_y(90);
+            s.translate(Vec3(-3.95,0.8,-12.75));
+            s.build_arrays();
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.shininess = 16;
+            s.material.emissive = true;
+            s.material.light_intensity = lights_intensity;
+            s.material.light_color = Vec3(1.);
+        }
         { //Pool front
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -1743,7 +1838,7 @@ s.material.texture_scale_y = 16.;
             s.translate(Vec3(0., 0., -2.));
             s.scale(Vec3(8., 8., 1.));
             s.rotate_x(-180);
-            s.translate(Vec3(0.,-1.,0.));
+            s.translate(Vec3(0.,4.,0.));
             s.build_arrays();
             s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
@@ -1761,7 +1856,7 @@ s.material.texture_scale_y = 16.;
             s.setQuad(Vec3(-1., -0.2, 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.translate(Vec3(0., 0., -2.));
             s.scale(Vec3(8., 8., 1.));
-            s.translate(Vec3(0.,-1.,-12.));
+            s.translate(Vec3(0.,-3.,-12.));
             s.build_arrays();
             s.material.diffuse_material = Vec3( 0.1,0.5,0.1 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
@@ -1779,7 +1874,22 @@ s.material.texture_scale_y = 16.;
             m.centerAndScaleToUnit();
             m.rotate_x(270);
             m.rotate_y(45);
-            m.translate(Vec3(0., -2.51, -2.));
+            m.translate(Vec3(0., -1.85, -2.));
+            m.scale(Vec3(1.3));
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 237./255.,149./255., 218./255.);
+            m.material.specular_material = Vec3( 1. );
+            m.material.shininess = 6.;
+        }
+        { // Rubber duck
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/rubber_duck_colored.off");
+            m.centerAndScaleToUnit();
+            m.rotate_x(270);
+            m.rotate_y(45);
+            m.translate(Vec3(2., -1.85, -2.));
+            m.scale(Vec3(1.3));
             m.build_arrays();
             m.material.diffuse_material = Vec3( 237./255.,149./255., 218./255.);
             m.material.specular_material = Vec3( 1. );
