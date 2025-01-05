@@ -202,7 +202,12 @@ void ray_trace_from_camera() {
     std::vector<Vec3> image(w * h, Vec3(0, 0, 0));
     std::vector<std::thread> threads;
 
-    unsigned int nb_threads = std::thread::hardware_concurrency();
+    unsigned int nb_threads;
+    if (MULTI_THREADED) {
+        nb_threads = std::thread::hardware_concurrency();
+    } else {
+        nb_threads = 1;
+    }
     
     camera.apply();
     matrixUtilities.updated();

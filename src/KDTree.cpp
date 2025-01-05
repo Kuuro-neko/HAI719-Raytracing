@@ -173,7 +173,6 @@ void KDTree::draw() const {
         boxVertices.push_back(Vec3(aabb.p1[0], aabb.p1[1], aabb.p1[2]));
         boxVertices.push_back(Vec3(aabb.p0[0], aabb.p1[1], aabb.p1[2]));
 
-        // draw only the edges
         unsigned int boxIndices[] = {
             0, 1, 1, 2, 2, 3, 3, 0,
             4, 5, 5, 6, 6, 7, 7, 4,

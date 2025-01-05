@@ -42,7 +42,6 @@ void Material::scatter(const Ray &ray_in, const Vec3 &normal, const Vec3 &inters
             } else {
                 direction = refract(ray_in.direction(), normal, ri);
             }
-            //direction = refract(ray_in.direction(), normal, ri);
             break;
         case Material_Diffuse_Blinn_Phong:
             direction = normal + random_unit_vector();
@@ -80,8 +79,6 @@ void Material::texture(Vec3 &color, float u, float v) {
                     }
                 break;
             }
-            // u = clamp(u, 0., 1.);
-            // v = 1. - clamp(v, 0., 1.);
             u = fmod(u*texture_scale_x, 1.);
             v = 1 - fmod(v*texture_scale_y, 1.);
             x = int(u * (image->w - 1));
@@ -119,8 +116,6 @@ void Material::get_normal(Vec3& normal, float u, float v, Vec3 &T, Vec3 &B) {
         return;
     }
     int x, y, index;
-    // u = clamp(u, 0., 1.);
-    // v = 1. - clamp(v, 0., 1.);
     u = fmod(u*texture_scale_x, 1.);
     v = 1 - fmod(v*texture_scale_y, 1.);
     x = int(u * (normals->w - 1));

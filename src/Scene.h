@@ -62,6 +62,7 @@ class Scene {
     std::vector< ppmLoader::ImageRGB > textures;
     std::vector< ppmLoader::ImageRGB > normals;
     ppmLoader::ImageRGB skybox;
+    bool dark_sky = true;
 
 public:
 
@@ -147,6 +148,7 @@ public:
 
     Vec3 skyboxTexture(Vec3 direction, int NRemainingBounces) {
         if (skybox.w < 1 || skybox.h < 1) {
+            if (dark_sky) return Vec3(0.);
             float a = 0.5*(direction[1] + 1.0);
             return (1.0-a)*Vec3(1.0, 1.0, 1.0) + a*Vec3(0.5, 0.7, 1.0) * (NRemainingBounces+1);
         }
@@ -381,6 +383,7 @@ public:
 
     void setup_single_square() {
         clear();
+        dark_sky = false;
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -554,27 +557,6 @@ public:
             s.material.set_texture(&textures[sand_texture]);
             s.material.set_normals(&normals[floor_normal]);
         }
-
-        // { //Water above floor
-        //     squares.resize( squares.size() + 1 );
-        //     Square & s = squares[squares.size() - 1];
-        //     s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-        //     s.translate(Vec3(0., 0., -2.));
-        //     s.scale(Vec3(2.*aspect_ratio, 2., 1.));
-        //     s.rotate_x(-90);
-        //     s.translate(Vec3(0., 0.3, 0.));
-        //     s.build_arrays();
-        //     s.material.diffuse_material = Vec3( 35./255., 137./255., 218./255. );
-        //     s.material.specular_material = Vec3( 1.0,1.0,1.0 );
-        //     s.material.shininess = 50.;
-        //     s.material.type = Material_Glass;
-        //     s.material.transparency = 0.9;
-        //     //s.material.texture_type = Texture_Image;
-        //     //s.material.set_texture(&textures[sand_texture]);
-        //     s.material.set_normals(&normals[water_normal]);
-        //     //s.material.motion_blur_translation = Vec3(0.,-0.2,0.);
-        // }
-
         { //Ceiling
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -592,9 +574,6 @@ public:
             s.material.texture_scale_x = 8.*aspect_ratio;
             s.material.texture_scale_y = 8.;
         }
-       
-       
-  
         { //Front Wall
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -610,8 +589,6 @@ public:
             s.material.set_texture(&textures[brickwall_texture]);
             s.material.set_normals(&normals[brickwall_normal]);
         }
-
-
         { //GLASS Sphere
 
             spheres.resize( spheres.size() + 1 );
@@ -626,8 +603,6 @@ public:
             s.material.transparency = 1.0;
             s.material.index_medium = 1.4;
         }
-
-
         { //MIRRORED Sphere
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
@@ -641,21 +616,6 @@ public:
             s.material.transparency = 0.;
             s.material.index_medium = 0.;
         }
-
-        // {
-        //     meshes.resize( meshes.size() + 1 );
-        //     Mesh & m = meshes[meshes.size() - 1];
-        //     m.loadOFF("mesh/tripod.off");
-        //     m.translate(Vec3(0., 0., 0.));
-        //     m.build_arrays();
-        //     m.material.type = Material_Glass;
-        //     m.material.index_medium = 1.333;
-        //     m.material.transparency = 0.9;
-        //     m.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
-        //     m.material.specular_material = Vec3( 0.9, 0.9, 0.9 );
-        //     m.material.shininess = 32;
-        // }
-    
     }
 
     void setup_rt_in_a_weekend() {
@@ -868,6 +828,7 @@ s.material.texture_scale_y = 100.;
 
     void setup_random_spheres() {
         clear();
+        dark_sky = false;
         int nSpheres = 79;
         {
             lights.resize( lights.size() + 1 );
@@ -964,6 +925,7 @@ s.material.texture_scale_y = 100.;
 
     void setup_debug_refraction() {
         clear();
+        dark_sky = false;
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -1035,9 +997,9 @@ s.material.texture_scale_y = 100.;
         }
     }
 
-    // Starting to thing i may have too many scenes !
     void setup_flamingo() {
         clear();
+        dark_sky = false;
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
@@ -1073,7 +1035,7 @@ s.material.texture_scale_y = 100.;
             s.material.checkerboard_color1 = Vec3(0.8, 0.8, 0.);
             s.material.checkerboard_color2 = Vec3( 0.6,0.6,0.  );
             s.material.texture_scale_x = 100.;
-s.material.texture_scale_y = 100.;
+            s.material.texture_scale_y = 100.;
         }
         { // Glass Sphere
             spheres.resize( spheres.size() + 1 );
@@ -1147,7 +1109,7 @@ s.material.texture_scale_y = 100.;
             s.material.checkerboard_color1 = Vec3(0.5, 0., 0.5);
             s.material.checkerboard_color2 = Vec3( 0.6,0.,0.6  );
             s.material.texture_scale_x = 16.;
-s.material.texture_scale_y = 16.;
+            s.material.texture_scale_y = 16.;
         }
         { //Flying carpet red part
             squares.resize( squares.size() + 1 );
@@ -1349,20 +1311,6 @@ s.material.texture_scale_y = 16.;
             s.material.set_normals(&normals[water_normal]);
             
         }
-        // { // Diffuse Sphere
-        //     spheres.resize( spheres.size() + 1 );
-        //     Sphere & s = spheres[spheres.size() - 1];
-        //     s.m_center = Vec3(0. , -1. , -6.);
-        //     s.m_radius = 2.f;
-        //     s.build_arrays();
-        //     s.material.diffuse_material = Vec3( 0.1,0.2, 0.5);
-        //     s.material.specular_material = Vec3( 0.2,0.2,0.2 );
-        //     s.material.shininess = 20;
-        //     s.material.texture_type = Texture_Image;
-        //     s.material.set_texture(&textures[sun_texture]);
-        //     s.material.emissive = true;
-        //     s.material.light_intensity = 15.;
-        // }
         { // Flamingo
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
@@ -1870,28 +1818,63 @@ s.material.texture_scale_y = 16.;
         { // Flamingo
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
-            m.loadOFF("mesh/flamingo_float.off");
+            m.loadOFF("mesh/flamingo_float_colored.off");
             m.centerAndScaleToUnit();
-            m.rotate_x(270);
-            m.rotate_y(45);
-            m.translate(Vec3(0., -1.85, -2.));
-            m.scale(Vec3(1.3));
+            m.rotate_x(0);
+            m.rotate_y(225);
+            m.translate(Vec3(-0.5, -1.35, -2.));
+            m.scale(Vec3(1.8));
             m.build_arrays();
             m.material.diffuse_material = Vec3( 237./255.,149./255., 218./255.);
             m.material.specular_material = Vec3( 1. );
             m.material.shininess = 6.;
+        }
+        { // Flamingo eye
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0.05, -1.4, -3.1);
+            s.m_radius = 0.05f;
+            s.build_arrays();
+            s.material.type = Material_Diffuse_Blinn_Phong; 
+            s.material.diffuse_material = Vec3( 1. );
+            s.material.specular_material = Vec3(  1. );
+            s.material.shininess = 16;
+        }
+        { // Flamingo pupil
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0.05, -1.4, -3.05);
+            s.m_radius = 0.01f;
+            s.build_arrays();
+            s.material.type = Material_Diffuse_Blinn_Phong; 
+            s.material.diffuse_material = Vec3( 0. );
+            s.material.specular_material = Vec3(  0. );
+            s.material.shininess = 16;
         }
         { // Rubber duck
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
             m.loadOFF("mesh/rubber_duck_colored.off");
             m.centerAndScaleToUnit();
-            m.rotate_x(270);
-            m.rotate_y(45);
-            m.translate(Vec3(2., -1.85, -2.));
+            m.rotate_y(-35);
+            m.translate(Vec3(2., -1.65, -2.));
             m.scale(Vec3(1.3));
             m.build_arrays();
-            m.material.diffuse_material = Vec3( 237./255.,149./255., 218./255.);
+            m.material.diffuse_material = Vec3( 1.,1., 0.);
+            m.material.specular_material = Vec3( 1. );
+            m.material.shininess = 6.;
+        }
+        { // Pool ladder
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("mesh/pool_ladder.off");
+            m.centerAndScaleToUnit();
+            m.rotate_y(90);
+            m.translate(Vec3(-3., -1.445, -3.));
+            m.scale(Vec3(1.3));
+            m.build_arrays();
+            m.material.type = Material_Mirror;
+            m.material.diffuse_material = Vec3( 0.5,0.5, 0.5);
             m.material.specular_material = Vec3( 1. );
             m.material.shininess = 6.;
         }
