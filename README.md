@@ -13,10 +13,9 @@
 - Flou de mouvement
 
 # Utilisation
+Dépendance nécessaire : OpenGL
 
 #### Compilation et exécution
-
-Dépendance nécessaire : OpenGL
 
 ```bash
 make && ./main
@@ -38,6 +37,7 @@ make && ./main
 
 ![Cornell image](./img/rendus/cornell3.png)
 ![Moving spheres image](./img/rendus/motion_blur.png)
+![Slime image](./img/rendus/slimespace.png)
 ![Sun image](./img/rendus/sun.png)
 ![Spheres image](./img/rendus/spheres.png)
 ![Flamingo image](./img/rendus/flamingo.png)
