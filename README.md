@@ -2,6 +2,8 @@
 
 ![Pool image](./img/rendus/pool.png)
 
+Générateur d'images par lancer de rayons
+
 # Fonctionnalités
 
 - Objets géométriques : sphères, plans
